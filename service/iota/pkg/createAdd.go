@@ -8,8 +8,6 @@ import (
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-// var endpoint = "https://nodes.devnet.thetangle.org"
-
 func CreateAddress(endpoint string) (addr, seed string, err error) {
 	rawSeed, err := createSeed()
 	if err != nil {

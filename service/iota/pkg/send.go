@@ -9,14 +9,6 @@ import (
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-// var endpoint = "https://nodes.devnet.thetangle.org"
-
-// We need a dummy seed even though we don't sign, because the API requires a seed to send
-//var seed = trinary.Trytes("JBN9ZRCOH9YRUGSWIQNZWAIFEZUBDUGTFPVRKXWPAUCEQQFS9NHPQLXCKZKRHVCCUZNF9CZZWKXRZVCWQ")
-
-//var address = trinary.Trytes("XBN9ZRCOH9YRUGSWIQNZWAIFEZUBDUGTFPVRKXWPAUCEQQFS9NHPQLXCKZKRHVCCUZNF9CZZWKXRZVCWQMZOCAHYPD")
-
-// Our data is very long here, it needs to be split over several transactions, 3 in this case
 var data = "{\"senderID\":\"KZZDTHNQWCNQ9RKHNI7TM2LB40242WHZ5D5130J7ZQHJNS9HT1ELFJIV86D2ENHEXO54ES4WBEOXBX2JD\",\"test\":23213}"
 var tag = "WASTECHAIN"
 
