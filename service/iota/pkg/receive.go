@@ -10,7 +10,7 @@ import (
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-func Recive(address, endpoint string) ([]string, error) {
+func Receive(address, endpoint string) ([]string, error) {
 	query := iotaAPI.FindTransactionsQuery{Addresses: trinary.Hashes{address}}
 
 	api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})

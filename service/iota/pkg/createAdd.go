@@ -4,27 +4,34 @@ import (
 	"fmt"
 	"os/exec"
 
-	iotaAPI "github.com/iotaledger/iota.go/api"
+	"github.com/iotaledger/iota.go/address"
+	"github.com/iotaledger/iota.go/consts"
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-func CreateAddress(endpoint string) (addr, seed string, err error) {
+type TransportInfo struct {
+	Address string
+	Seed    string
+}
+
+func CreateAddress(endpoint string) (res TransportInfo, err error) {
 	rawSeed, err := createSeed()
 	if err != nil {
-		return "", "", err
+		return TransportInfo{}, err
 	}
-	seed = trinary.Trytes(rawSeed)
+	seed := trinary.Trytes(rawSeed)
 
 	// compose a new API instance
-	api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})
-	must(err)
+	//api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})
+	//must(err)
 
 	// GetNewAddress retrieves the first unspent from address through IRI
-	addresses, err := api.GetNewAddress(seed, iotaAPI.GetNewAddressOptions{})
+	//addresses, err := api.GetNewAddress(seed, iotaAPI.GetNewAddressOptions{})
+	address, err := address.GenerateAddress(seed, 1, consts.SecurityLevelMedium, true)
 	must(err)
 
-	fmt.Println("\nYour new address: ", addresses[0])
-	return addresses[0], seed, nil
+	fmt.Println("\nYour new address: ", address)
+	return TransportInfo{Address: address, Seed: seed}, nil
 }
 
 func createSeed() (string, error) {
