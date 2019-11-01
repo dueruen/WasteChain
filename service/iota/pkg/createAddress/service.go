@@ -1,23 +1,19 @@
-package pkg
+package createAddress
 
 import (
 	"fmt"
 	"os/exec"
 
+	srv "github.com/dueruen/WasteChain/service/iota/pkg"
 	"github.com/iotaledger/iota.go/address"
 	"github.com/iotaledger/iota.go/consts"
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-type TransportInfo struct {
-	Address string
-	Seed    string
-}
-
-func CreateAddress(endpoint string) (res TransportInfo, err error) {
+func CreateAddress(endpoint string) (res *srv.TransportInfo, err error) {
 	rawSeed, err := createSeed()
 	if err != nil {
-		return TransportInfo{}, err
+		return &srv.TransportInfo{}, err
 	}
 	seed := trinary.Trytes(rawSeed)
 
@@ -28,10 +24,12 @@ func CreateAddress(endpoint string) (res TransportInfo, err error) {
 	// GetNewAddress retrieves the first unspent from address through IRI
 	//addresses, err := api.GetNewAddress(seed, iotaAPI.GetNewAddressOptions{})
 	address, err := address.GenerateAddress(seed, 1, consts.SecurityLevelMedium, true)
-	must(err)
+	if err != nil {
+		return nil, err
+	}
 
 	fmt.Println("\nYour new address: ", address)
-	return TransportInfo{Address: address, Seed: seed}, nil
+	return &srv.TransportInfo{Address: address, Seed: seed}, nil
 }
 
 func createSeed() (string, error) {
@@ -42,10 +40,4 @@ func createSeed() (string, error) {
 	seed := string(out)
 	fmt.Println("Seed: ", seed)
 	return seed, nil
-}
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
 }

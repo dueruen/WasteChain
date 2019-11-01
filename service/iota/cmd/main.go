@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	service "github.com/dueruen/WasteChain/service/iota/pkg"
+	sender "github.com/dueruen/WasteChain/service/iota/pkg/send"
 )
 
 var endpoint = "https://nodes.devnet.thetangle.org"
@@ -18,13 +17,13 @@ func main() {
 	// }
 	//fmt.Println("addr: ", addr, " seed: ", seed)
 	//service.Send(addr, seed, endpoint)
-	//service.Send(service.TransportInfo{Address: addrSender, Seed: seedSender}, service.TransportInfo{Address: addrReceiver, Seed: seedReceiver}, endpoint)
+	sender.Send(service.TransportInfo{Address: addrSender, Seed: seedSender}, service.TransportInfo{Address: addrReceiver, Seed: seedReceiver}, endpoint)
 
-	messages, err := service.Receive(addrReceiver, endpoint)
-	if err != nil {
-		panic("err")
-	}
-	fmt.Println("Messages: ", messages)
+	// messages, err := service.Receive(addrReceiver, endpoint)
+	// if err != nil {
+	// 	panic("err")
+	// }
+	// fmt.Println("Messages: ", messages)
 
 	// remainderAddressNoCheck, err := address.GenerateAddress(seed, 1, consts.SecurityLevelMedium, false)
 	// if err != nil {

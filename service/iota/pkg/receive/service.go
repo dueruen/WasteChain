@@ -1,10 +1,11 @@
-package pkg
+package receive
 
 import (
 	"bytes"
 	"sort"
 	"strings"
 
+	compress "github.com/dueruen/WasteChain/service/iota/pkg/compress"
 	iotaAPI "github.com/iotaledger/iota.go/api"
 	"github.com/iotaledger/iota.go/converter"
 	"github.com/iotaledger/iota.go/trinary"
@@ -14,11 +15,15 @@ func Receive(address, endpoint string) ([]string, error) {
 	query := iotaAPI.FindTransactionsQuery{Addresses: trinary.Hashes{address}}
 
 	api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})
-	must(err)
+	if err != nil {
+		return nil, err
+	}
 
 	// Find Transaction Objects uses the connected node to find transactions based on our query
 	transactions, err := api.FindTransactionObjects(query)
-	must(err)
+	if err != nil {
+		return nil, err
+	}
 
 	// We need to sort all transactions by index first so we can concatenate them
 	sort.Slice(transactions[:], func(i, j int) bool {
@@ -42,7 +47,12 @@ func Receive(address, endpoint string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		messages = append(messages, msg)
+		decompressData, err := compress.Decompress(msg)
+		if err != nil {
+			return nil, err
+		}
+
+		messages = append(messages, string(decompressData))
 	}
 	return messages, nil
 }
