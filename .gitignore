@@ -1,4 +1,8 @@
 *
+
 !/**/
 !*.*
+!Makefile
+
 **/secret.go
+**/gen

@@ -1,0 +1,98 @@
+syntax = "proto3";
+package accountService;
+
+service AccountService {
+    // Company
+    rpc CreateCompany (CreateCompanyRequest) returns (CreateCompanyResponse);
+    rpc ListAllCompanies (ListAllCompaniesRequest) returns (ListAllCompaniesResponse);
+    rpc GetCompany (GetCompanyRequest) returns (GetCompanyResponse);
+
+    // Employee
+    rpc CreateEmployee (CreateEmployeeRequest) returns (CreateEmployeeResponse);
+    rpc ListAllEmployeesInCompany (ListAllEmployeesInCompanyRequest) returns (ListAllEmployeesInCompanyResponse);
+    rpc GetEmployee (GetEmployeeRequest) returns (GetEmployeeResponse);
+}
+
+message Company {
+    string ID = 1;
+    string Name = 2;
+    Address Address = 3;
+    repeated ContactInfo ContactInfo = 4;
+    repeated Employee Employees = 5;
+}
+
+message Address {
+    string ID = 1;
+    string RoadName = 2;
+    int32 number = 3;
+    int32 ZipCode = 4;
+}
+
+message ContactInfo {
+    string ID = 1;
+    int32 phoneNumber = 2;
+    string mail = 3;
+    string CompanyID = 4;
+}
+
+message Employee {
+    string ID = 1;
+    string Name = 2;
+    string CompanyID = 3;
+}
+
+message CreateCompanyRequest {
+    string Name = 1;
+    Address Address = 2;
+    ContactInfo ContactInfo = 3;
+}
+
+message CreateCompanyResponse {
+    string error = 1;
+    Company Company = 2;
+}
+
+message ListAllCompaniesRequest {
+    string ID = 1;
+}
+
+message ListAllCompaniesResponse {
+    string error = 1;
+    repeated Company Companies = 2;
+}
+
+message GetCompanyRequest {
+    string ID = 1;
+}
+
+message GetCompanyResponse {
+    string error = 1;
+    Company Company = 2;
+}
+
+message CreateEmployeeRequest {
+    string Name = 1;
+}
+
+message CreateEmployeeResponse {
+    string error = 1;
+    Employee Employee = 2;
+}
+
+message ListAllEmployeesInCompanyRequest {
+    string ID = 1;
+}
+
+message ListAllEmployeesInCompanyResponse {
+    string error = 1;
+    repeated Employee Employees = 2;
+}
+
+message GetEmployeeRequest {
+    string ID = 1;
+}
+
+message GetEmployeeResponse {
+    string error = 1;
+    Employee Employee = 2;
+}
