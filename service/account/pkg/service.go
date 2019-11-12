@@ -1,8 +1,19 @@
 package pkg
 
 import (
+	"fmt"
+	"net"
+
 	"github.com/dueruen/WasteChain/service/account/pkg/creating"
 	"github.com/dueruen/WasteChain/service/account/pkg/listing"
+	"github.com/dueruen/WasteChain/service/account/pkg/storage/postgres"
+	"github.com/dueruen/WasteChain/service/account/pkg/transport"
+	grpctransport "github.com/dueruen/WasteChain/service/account/pkg/transport/grpc"
+	kitoc "github.com/go-kit/kit/tracing/opencensus"
+	kitgrpc "github.com/go-kit/kit/transport/grpc"
+	"google.golang.org/grpc"
+
+	pb "github.com/dueruen/WasteChain/service/account/gen/proto"
 )
 
 type listingRepository = listing.Repository
@@ -11,46 +22,34 @@ type creatingRepository = creating.Repository
 type listingService = listing.Service
 type creatingService = creating.Service
 
+const port = ":50051"
+
 func Run() {
+	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	defer postgres.Close(storage)
+	if err != nil {
+		fmt.Printf("Storage err: %v\n", err)
+	}
+	creatingService := creating.NewService(storage)
+	listingService := listing.NewService(storage)
 
+	var endpoints transport.Endpoints
+	{
+		endpoints = transport.MakeEndpoints(creatingService, listingService)
+	}
+
+	var (
+		ocTracing       = kitoc.GRPCServerTrace()
+		serverOptions   = []kitgrpc.ServerOption{ocTracing}
+		accountService  = grpctransport.NewGrpcServer(endpoints, serverOptions)
+		grpcListener, _ = net.Listen("tcp", port)
+		grpcServer      = grpc.NewServer()
+	)
+
+	pb.RegisterAccountServiceServer(grpcServer, accountService)
+
+	fmt.Printf("Account service is listening on port %s...\n", port)
+
+	err = grpcServer.Serve(grpcListener)
+	fmt.Println("Serve() failed", err)
 }
-
-type Repository interface {
-	listingRepository
-	creatingRepository
-}
-
-type Service struct {
-	listingService
-	creatingService
-}
-
-// func NewService(repo Repository) *Service {
-// 	return &Service{repo}
-// }
-
-// func (srv *Service) CreateCompany(ctx context.Context, in *pb.CreateCompanyRequest) (*pb.CreateCompanyResponse, error) {
-// 	// TODO make validation
-// 	return srv.repo.CreateNewCompany(in)
-// }
-
-// func (srv *Service) CreateEmployee(ctx context.Context, in *pb.CreateEmployeeRequest) (*pb.CreateEmployeeResponse, error) {
-// 	// TODO make validation
-// 	return srv.repo.CreateEmployee(in)
-// }
-
-// func (srv *Service) ListAllCompanies(ctx context.Context, in *pb.ListAllCompaniesRequest) (*pb.ListAllCompaniesResponse, error) {
-// 	return srv.repo.ListAllCompanies(in)
-// }
-
-// func (srv *Service) GetCompany(ctx context.Context, in *pb.GetCompanyRequest) (*pb.GetCompanyResponse, error) {
-// 	return srv.repo.GetCompany(in)
-// }
-
-// func (srv *Service) ListAllEmployeesInCompany(ctx context.Context, in *pb.ListAllEmployeesInCompanyRequest) (*pb.ListAllEmployeesInCompanyResponse, error) {
-// 	return srv.repo.ListAllEmployeesInCompany(in)
-// }
-
-// func (srv *Service) GetEmployee(ctx context.Context, in *pb.GetEmployeeRequest) (*pb.GetEmployeeResponse, error) {
-// 	return srv.repo.GetEmployee(in)
-// }

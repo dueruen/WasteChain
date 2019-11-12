@@ -28,11 +28,24 @@ message Address {
     int32 ZipCode = 4;
 }
 
+message CreateAddress {
+    string RoadName = 1;
+    int32 number = 2;
+    int32 ZipCode = 3;
+}
+
 message ContactInfo {
     string ID = 1;
+    string Title = 2;
+    int32 phoneNumber = 3;
+    string mail = 4;
+    string CompanyID = 5;
+}
+
+message CreateContactInfo {
+    string Title = 1;
     int32 phoneNumber = 2;
     string mail = 3;
-    string CompanyID = 4;
 }
 
 message Employee {
@@ -43,8 +56,8 @@ message Employee {
 
 message CreateCompanyRequest {
     string Name = 1;
-    Address Address = 2;
-    ContactInfo ContactInfo = 3;
+    CreateAddress Address = 2;
+    CreateContactInfo ContactInfo = 3;
 }
 
 message CreateCompanyResponse {
@@ -53,7 +66,6 @@ message CreateCompanyResponse {
 }
 
 message ListAllCompaniesRequest {
-    string ID = 1;
 }
 
 message ListAllCompaniesResponse {
@@ -72,6 +84,7 @@ message GetCompanyResponse {
 
 message CreateEmployeeRequest {
     string Name = 1;
+    string CompanyID = 2;
 }
 
 message CreateEmployeeResponse {
