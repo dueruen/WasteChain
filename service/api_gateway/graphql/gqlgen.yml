@@ -1,0 +1,15 @@
+# .gqlgen.yml example
+#
+# Refer to https://gqlgen.com/config/
+# for detailed .gqlgen.yml documentation.
+
+schema:
+- schema.graphql
+exec:
+  filename: generated.go
+
+resolver:
+  filename: tmp/resolver.go
+  type: Resolver
+autobind:
+    - github.com/dueruen/WasteChain/service/api_gateway/gen/proto
