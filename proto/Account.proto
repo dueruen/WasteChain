@@ -1,5 +1,5 @@
 syntax = "proto3";
-package accountService;
+package pb;
 
 service AccountService {
     // Company
@@ -11,6 +11,12 @@ service AccountService {
     rpc CreateEmployee (CreateEmployeeRequest) returns (CreateEmployeeResponse);
     rpc ListAllEmployeesInCompany (ListAllEmployeesInCompanyRequest) returns (ListAllEmployeesInCompanyResponse);
     rpc GetEmployee (GetEmployeeRequest) returns (GetEmployeeResponse);
+}
+
+message CreateCompany {
+    string Name = 1;
+    CreateAddress Address = 2;
+    CreateContactInfo ContactInfo = 3;
 }
 
 message Company {
@@ -48,6 +54,11 @@ message CreateContactInfo {
     string mail = 3;
 }
 
+message CreateEmployee {
+    string Name = 1;
+    string CompanyID = 2;
+}
+
 message Employee {
     string ID = 1;
     string Name = 2;
@@ -55,9 +66,7 @@ message Employee {
 }
 
 message CreateCompanyRequest {
-    string Name = 1;
-    CreateAddress Address = 2;
-    CreateContactInfo ContactInfo = 3;
+    CreateCompany company = 1;
 }
 
 message CreateCompanyResponse {
@@ -83,8 +92,7 @@ message GetCompanyResponse {
 }
 
 message CreateEmployeeRequest {
-    string Name = 1;
-    string CompanyID = 2;
+    CreateEmployee employee = 1;
 }
 
 message CreateEmployeeResponse {
