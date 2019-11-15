@@ -102,12 +102,15 @@ func (storage *Storage) GetCompany(companyID string) (*listing.Company, error) {
 
 func getAllCompanyData(db *gorm.DB, company *Company) *Company {
 	var address Address
+	db.Where("id = ?", company.AddressID).First(&address)
 	company.Address = &address
 
 	var contactInfo []*ContactInfo
+	db.Where("company_id = ?", company.ID).Find(&contactInfo)
 	company.ContactInfo = contactInfo
 
 	var employees []*Employee
+	db.Where("company_id = ?", company.ID).Find(&employees)
 	company.Employees = employees
 	return company
 }
