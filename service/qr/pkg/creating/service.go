@@ -1,17 +1,18 @@
 package creating
 
 import (
-    qrcode "github.com/skip2/go-qrcode"
-    pb "github.com/dueruen/WasteChain/service/qr/gen/proto"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 type Service interface {
-	CreateQRCode(qrCode *pb.CreateQRCode) (*pb., error)
+	CreateQRCode(dataString *string) (*[]byte, error)
 }
 
+type service struct {
+}
 
-func (srv *service) CreateQRCode(string *dataString) (*[]byte, error) {
+func (srv *service) CreateQRCode(dataString *string) (*[]byte, error) {
 	var code []byte
-	code, err := qrcode.Encode(dataString, qrCode.Medium, 256)
+	code, err := qrcode.Encode(*dataString, qrCode.Medium, 256)
 	return code, err
 }
