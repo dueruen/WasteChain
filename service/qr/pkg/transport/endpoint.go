@@ -23,7 +23,7 @@ func makeCreateQRCodeEndpoint(service creating.Service) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) { 
         req := request.(*pb.CreateQRequest)
         res, _ := service.CreateQRCode(req.dataString)
-        return &pb.createQRResponse{qrCode: res}, nil
+        return &pb.CreateQRResponse{QrCode: res}, nil
     }
 
 

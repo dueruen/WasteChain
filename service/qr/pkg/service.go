@@ -6,7 +6,7 @@ import (
 
     "github.com/dueruen/WasteChain/service/qr/pkg/creating"
     "github.com/dueruen/WasteChain/service/qr/pkg/transport"
-    grpctransport "github.com/dueruen/WasteChain/service/account/pkg/transport/grpc"
+    grpctransport "github.com/dueruen/WasteChain/service/qr/pkg/transport/grpc"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc"
