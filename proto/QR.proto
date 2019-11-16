@@ -1,0 +1,17 @@
+syntax = "proto3";
+package pb;
+
+service QRService {
+    rpc CreateQRCode(CreateQRRequest) returns (CreateQRResponse);
+}
+
+message CreateQRRequest {
+    string dataString = 1;
+}
+
+
+message CreateQRResponse {
+    bytes qrCode = 1;
+    string error = 2;
+}
+
