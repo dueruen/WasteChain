@@ -1,17 +1,17 @@
 package creating
 
 import (
-	"github.com/dueruen/WasteChain/service/account/pkg/listing"
+	pb "github.com/dueruen/WasteChain/service/account/gen/proto"
 )
 
 type Service interface {
-	CreateCompany(company *Company) (*listing.Company, error)
-	CreateEmployee(employee *Employee) (*listing.Employee, error)
+	CreateCompany(company *pb.CreateCompany) (*pb.Company, error)
+	CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, error)
 }
 
 type Repository interface {
-	CreateNewCompany(company *Company) (*listing.Company, error)
-	CreateEmployee(employee *Employee) (*listing.Employee, error)
+	CreateNewCompany(company *pb.CreateCompany) (*pb.Company, error)
+	CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, error)
 }
 
 type service struct {
@@ -22,12 +22,12 @@ func NewService(createRepo Repository) Service {
 	return &service{createRepo}
 }
 
-func (srv *service) CreateCompany(company *Company) (*listing.Company, error) {
+func (srv *service) CreateCompany(company *pb.CreateCompany) (*pb.Company, error) {
 	// TODO make validation
 	return srv.createRepo.CreateNewCompany(company)
 }
 
-func (srv *service) CreateEmployee(employee *Employee) (*listing.Employee, error) {
+func (srv *service) CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, error) {
 	// TODO make validation
 	return srv.createRepo.CreateEmployee(employee)
 }

@@ -23,8 +23,9 @@ message Company {
     string ID = 1;
     string Name = 2;
     Address Address = 3;
-    repeated ContactInfo ContactInfo = 4;
-    repeated Employee Employees = 5;
+    string AddressID = 4;
+    repeated ContactInfo ContactInfo = 5;
+    repeated Employee Employees = 6;
 }
 
 message Address {
