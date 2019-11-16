@@ -1,0 +1,67 @@
+type Query {
+    #Company
+    listAllCompanies: [Company!]!
+    getCompany(companyID: ID!): Company!
+    #Employee
+    listAllEmployeesInCompany(companyID: ID!): [Employee!]!
+    getEmployee(employeeID: ID!): Employee!
+}
+
+type Mutation {
+    #Company
+    createCompany(company: CreateCompany!): Company!
+    #Employee
+    createEmployee(employee: CreateEmployee!): Employee!
+}
+
+input CreateCompany {
+    name: String!
+    address: CreateAddress!
+    contactinfo: CreateContactInfo!
+}
+
+type Company {
+    id: ID!
+    name: String!
+    address: Address!
+    contactinfo: [ContactInfo]!
+    employees: [Employee]
+}
+
+input CreateAddress {
+    roadName: String!
+    number: Int!
+    ZipCode: Int!
+}
+
+type Address {
+    id: ID!
+    roadName: String!
+    number: Int!
+    ZipCode: Int!
+}
+
+input CreateContactInfo {
+    title: String!
+    phoneNumber: Int!
+    mail: String!
+}
+
+type ContactInfo {
+    id: ID!
+    title: String!
+    phoneNumber: Int!
+    mail: String!
+    companyID: String!
+}
+
+input CreateEmployee {
+    name: String!
+    companyID: String!
+}
+
+type Employee {
+    id: ID!
+    name: String!
+    companyID: String!
+}

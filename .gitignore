@@ -6,3 +6,5 @@
 
 **/secret.go
 **/gen
+**/tmp
+**generated.go
