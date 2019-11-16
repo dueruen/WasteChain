@@ -1,10 +1,7 @@
 package postgres
 
 import (
-	"fmt"
-
-	"github.com/dueruen/WasteChain/service/account/pkg/creating"
-	"github.com/dueruen/WasteChain/service/account/pkg/listing"
+	pb "github.com/dueruen/WasteChain/service/account/gen/proto"
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -40,89 +37,99 @@ func connect(host, port, user, dbname, password string) (*gorm.DB, error) {
 }
 
 func createSchema(db *gorm.DB) error {
-	if db.HasTable(&Company{}) {
+	if db.HasTable(&pb.Company{}) {
 		return nil
 	}
 
-	db.AutoMigrate(&Company{}, &Address{}, &ContactInfo{}, &Employee{})
+	db.AutoMigrate(&pb.Company{}, &pb.Address{}, &pb.ContactInfo{}, &pb.Employee{})
 
-	db.Model(&Company{}).AddForeignKey("address_id", "addresses(id)", "CASCADE", "CASCADE")
-	db.Model(&ContactInfo{}).AddForeignKey("company_id", "companies(id)", "CASCADE", "CASCADE")
-	db.Model(&Employee{}).AddForeignKey("company_id", "companies(id)", "CASCADE", "CASCADE")
+	db.Model(&pb.Company{}).AddForeignKey("address_id", "addresses(id)", "CASCADE", "CASCADE")
+	db.Model(&pb.ContactInfo{}).AddForeignKey("company_id", "companies(id)", "CASCADE", "CASCADE")
+	db.Model(&pb.Employee{}).AddForeignKey("company_id", "companies(id)", "CASCADE", "CASCADE")
 	return nil
 }
 
-func (storage *Storage) CreateNewCompany(company *creating.Company) (*listing.Company, error) {
-	newCompany := mapCreateCompany(company)
+func (storage *Storage) CreateNewCompany(company *pb.CreateCompany) (*pb.Company, error) {
+	newCompany := &pb.Company{
+		Name: company.Name,
+		Address: &pb.Address{
+			Number:   company.Address.Number,
+			RoadName: company.Address.RoadName,
+			ZipCode:  company.Address.ZipCode,
+		},
+		ContactInfo: []*pb.ContactInfo{
+			&pb.ContactInfo{
+				Title:       company.ContactInfo.Title,
+				Mail:        company.ContactInfo.Mail,
+				PhoneNumber: company.ContactInfo.PhoneNumber,
+			},
+		},
+	}
 	id, _ := uuid.NewV4()
 	newCompany.ID = id.String()
 
 	addressID, _ := uuid.NewV4()
 	newCompany.Address.ID = addressID.String()
 
-	for _, contact := range newCompany.ContactInfo {
-		contractID, _ := uuid.NewV4()
-		contact.ID = contractID.String()
-		contact.CompanyID = newCompany.ID
-	}
+	contractID, _ := uuid.NewV4()
+	newCompany.ContactInfo[0].ID = contractID.String()
+	newCompany.ContactInfo[0].CompanyID = newCompany.ID
+
 	storage.db.Create(newCompany)
-	return mapToListCompany(newCompany), nil
+	return newCompany, nil
 }
 
-func (storage *Storage) CreateEmployee(employee *creating.Employee) (*listing.Employee, error) {
-	fmt.Println("create emp: ", employee)
-	newEmployee := mapCreateEmployee(employee)
+func (storage *Storage) CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, error) {
+	newEmployee := &pb.Employee{
+		Name:      employee.Name,
+		CompanyID: employee.CompanyID,
+	}
 	uuid, _ := uuid.NewV4()
 	newEmployee.ID = uuid.String()
-	fmt.Println("New emp: ", newEmployee)
 	storage.db.Create(newEmployee)
-	return mapToListEmployee(newEmployee), nil
+	return newEmployee, nil
 }
 
-func (storage *Storage) ListAllCompanies() ([]*listing.Company, error) {
-	var companies []*Company
+func (storage *Storage) ListAllCompanies() ([]*pb.Company, error) {
+	var companies []*pb.Company
 	storage.db.Find(&companies)
 
 	for _, com := range companies {
 		com = getAllCompanyData(storage.db, com)
 	}
-	for _, com := range companies {
-		fmt.Printf("All: %v\n", com)
-	}
-
-	return mapAllToListCompany(companies), nil
+	return companies, nil
 }
 
-func (storage *Storage) GetCompany(companyID string) (*listing.Company, error) {
-	var company Company
+func (storage *Storage) GetCompany(companyID string) (*pb.Company, error) {
+	var company pb.Company
 	storage.db.Where("id = ?", companyID).First(&company)
 	company = *getAllCompanyData(storage.db, &company)
-	return mapToListCompany(&company), nil
+	return &company, nil
 }
 
-func getAllCompanyData(db *gorm.DB, company *Company) *Company {
-	var address Address
+func getAllCompanyData(db *gorm.DB, company *pb.Company) *pb.Company {
+	var address pb.Address
 	db.Where("id = ?", company.AddressID).First(&address)
 	company.Address = &address
 
-	var contactInfo []*ContactInfo
+	var contactInfo []*pb.ContactInfo
 	db.Where("company_id = ?", company.ID).Find(&contactInfo)
 	company.ContactInfo = contactInfo
 
-	var employees []*Employee
+	var employees []*pb.Employee
 	db.Where("company_id = ?", company.ID).Find(&employees)
 	company.Employees = employees
 	return company
 }
 
-func (storage *Storage) ListAllEmployeesInCompany(companyID string) ([]*listing.Employee, error) {
-	var employees []*Employee
+func (storage *Storage) ListAllEmployeesInCompany(companyID string) ([]*pb.Employee, error) {
+	var employees []*pb.Employee
 	storage.db.Where("company_id = ?", companyID).Find(&employees)
-	return mapAllToListEmployee(employees), nil
+	return employees, nil
 }
 
-func (storage *Storage) GetEmployee(employeeID string) (*listing.Employee, error) {
-	var employee Employee
+func (storage *Storage) GetEmployee(employeeID string) (*pb.Employee, error) {
+	var employee pb.Employee
 	storage.db.Where("id = ?", employeeID).First(&employee)
-	return mapToListEmployee(&employee), nil
+	return &employee, nil
 }

@@ -3,6 +3,7 @@ package transport
 import (
 	"context"
 
+	pb "github.com/dueruen/WasteChain/service/account/gen/proto"
 	"github.com/dueruen/WasteChain/service/account/pkg/creating"
 	"github.com/dueruen/WasteChain/service/account/pkg/listing"
 	"github.com/go-kit/kit/endpoint"
@@ -30,48 +31,47 @@ func MakeEndpoints(createService creating.Service, listService listing.Service) 
 
 func makeCreateCompanyEndpoint(service creating.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateCompanyRequest)
+		req := request.(*pb.CreateCompanyRequest)
 		res, _ := service.CreateCompany(req.Company)
-		return CreateCompanyResponse{Company: res}, nil
+		return &pb.CreateCompanyResponse{Company: res}, nil
 	}
 }
 
 func makeCreateEmployeeEndpoint(service creating.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateEmployeeRequest)
+		req := request.(*pb.CreateEmployeeRequest)
 		res, _ := service.CreateEmployee(req.Employee)
-		return CreateEmployeeResponse{Employee: res}, nil
+		return &pb.CreateEmployeeResponse{Employee: res}, nil
 	}
 }
 
 func makeListAllCompaniesEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		//req := request.(ListAllCompaniesRequest)
 		res, _ := service.ListAllCompanies()
-		return ListAllCompaniesResponse{Companies: res}, nil
+		return &pb.ListAllCompaniesResponse{Companies: res}, nil
 	}
 }
 
 func makeGetCompanyEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetCompanyRequest)
+		req := request.(*pb.GetCompanyRequest)
 		res, _ := service.GetCompany(req.ID)
-		return GetCompanyResponse{Company: res}, nil
+		return &pb.GetCompanyResponse{Company: res}, nil
 	}
 }
 
 func makeListAllEmployeesInCompanyEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ListAllEmployeesInCompanyRequest)
+		req := request.(*pb.ListAllEmployeesInCompanyRequest)
 		res, _ := service.ListAllEmployeesInCompany(req.ID)
-		return ListAllEmployeesInCompanyResponse{Employees: res}, nil
+		return &pb.ListAllEmployeesInCompanyResponse{Employees: res}, nil
 	}
 }
 
 func makeGetEmployeeEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetEmployeeRequest)
+		req := request.(pb.GetEmployeeRequest)
 		res, _ := service.GetEmployee(req.ID)
-		return GetEmployeeResponse{Employee: res}, nil
+		return &pb.GetEmployeeResponse{Employee: res}, nil
 	}
 }
