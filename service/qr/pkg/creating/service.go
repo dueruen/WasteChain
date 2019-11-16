@@ -12,7 +12,10 @@ type service struct {
 }
 
 func (srv *service) CreateQRCode(dataString *string) (*[]byte, error) {
-	var code []byte
-	code, err := qrcode.Encode(*dataString, qrCode.Medium, 256)
-	return code, err
+	code, err := qrcode.Encode(*dataString, qrcode.Medium, 256)
+	return &code, err
+}
+
+func NewService() Service {
+	return &service{}
 }
