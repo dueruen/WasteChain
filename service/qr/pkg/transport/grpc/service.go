@@ -9,33 +9,30 @@ import (
 	"github.com/dueruen/WasteChain/service/qr/pkg/transport"
 )
 
-type server struct { 
-    createQRCode kitgrpc.Handler
-} 
-
-func newGrpcServer(endpoints transport.Endpoints, options []kitgrpc.ServerOption) pb.QRServiceServer { 
-    return &server { 
-        createQRCode: kitgrpc.NewServer(endpoints.CreateQRCode, decodeCreateQRRequest, encodeCreateQRRequest)
-    }
+type server struct {
+	createQRCode kitgrpc.Handler
 }
 
+func NewGrpcServer(endpoints transport.Endpoints, options []kitgrpc.ServerOption) pb.QRServiceServer {
+	return &server{
+		createQRCode: kitgrpc.NewServer(endpoints.CreateQRCode, decodeCreateQRRequest, encodeCreateQRResponse),
+	}
+}
 
-func (server *server) CreateQR(ctx context.Context, req *pb.CreateQRRequest) (*pb.CreateQRResponse, error) { 
-    _, rep, err := server.createQRCode.ServeGRPC(ctx, req)
-    
-    if err != nil { 
-        return nil, err
-    }
+func (server *server) CreateQRCode(ctx context.Context, req *pb.CreateQRRequest) (*pb.CreateQRResponse, error) {
+	_, rep, err := server.createQRCode.ServeGRPC(ctx, req)
 
-    return rep.(*pb.CreateQRResponse), nil
+	if err != nil {
+		return nil, err
+	}
+
+	return rep.(*pb.CreateQRResponse), nil
 }
 
 func decodeCreateQRRequest(_ context.Context, request interface{}) (interface{}, error) {
-    return request.(*pb.CreateQRRequest), nil
+	return request.(*pb.CreateQRRequest), nil
 }
 
-
-func encodeCreateQRResponse(_ context.Context, request interface{}) (interface{}, error) {
-    return response.(*pb.CreateQRReponse), nil
+func encodeCreateQRResponse(_ context.Context, response interface{}) (interface{}, error) {
+	return response.(*pb.CreateQRResponse), nil
 }
-
