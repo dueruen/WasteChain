@@ -3,8 +3,6 @@ package grpc
 import (
 	"context"
 
-	"github.com/dueruen/WasteChain/service/account/pkg/creating"
-
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 
 	pb "github.com/dueruen/WasteChain/service/account/gen/proto"
@@ -40,21 +38,11 @@ func (server *server) CreateCompany(ctx context.Context, req *pb.CreateCompanyRe
 }
 
 func decodeCreateCompanyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.CreateCompanyRequest)
-	return transport.CreateCompanyRequest{
-		Company: &creating.Company{
-			Name:        req.Name,
-			Address:     mapPbCreateAddressToCreating(req.Address),
-			ContactInfo: []*creating.ContactInfo{mapPbCreateContactInfoToCreating(req.ContactInfo)},
-		},
-	}, nil
+	return request.(*pb.CreateCompanyRequest), nil
 }
 
 func encodeCreateCompanyResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.CreateCompanyResponse)
-	return &pb.CreateCompanyResponse{
-		Company: mapListCompanyToPb(res.Company),
-	}, nil
+	return response.(*pb.CreateCompanyResponse), nil
 }
 
 func (server *server) CreateEmployee(ctx context.Context, req *pb.CreateEmployeeRequest) (*pb.CreateEmployeeResponse, error) {
@@ -66,20 +54,11 @@ func (server *server) CreateEmployee(ctx context.Context, req *pb.CreateEmployee
 }
 
 func decodeCreateEmployeeRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.CreateEmployeeRequest)
-	return transport.CreateEmployeeRequest{
-		Employee: &creating.Employee{
-			Name:      req.Name,
-			CompanyID: req.CompanyID,
-		},
-	}, nil
+	return request.(*pb.CreateEmployeeRequest), nil
 }
 
 func encodeCreateEmployeeResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.CreateEmployeeResponse)
-	return &pb.CreateEmployeeResponse{
-		Employee: mapListEmployeeToPb(res.Employee),
-	}, nil
+	return response.(*pb.CreateEmployeeResponse), nil
 }
 
 func (server *server) ListAllCompanies(ctx context.Context, req *pb.ListAllCompaniesRequest) (*pb.ListAllCompaniesResponse, error) {
@@ -91,15 +70,11 @@ func (server *server) ListAllCompanies(ctx context.Context, req *pb.ListAllCompa
 }
 
 func decodeListAllCompaniesRequest(_ context.Context, request interface{}) (interface{}, error) {
-	//req := request.(*pb.ListAllCompaniesRequest)
-	return transport.ListAllCompaniesRequest{}, nil
+	return pb.ListAllCompaniesRequest{}, nil
 }
 
 func encodeListAllCompaniesResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.ListAllCompaniesResponse)
-	return &pb.ListAllCompaniesResponse{
-		Companies: mapAllListCompaniesToPb(res.Companies),
-	}, nil
+	return response.(*pb.ListAllCompaniesResponse), nil
 }
 
 func (server *server) GetCompany(ctx context.Context, req *pb.GetCompanyRequest) (*pb.GetCompanyResponse, error) {
@@ -111,17 +86,11 @@ func (server *server) GetCompany(ctx context.Context, req *pb.GetCompanyRequest)
 }
 
 func decodeGetCompanyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.GetCompanyRequest)
-	return transport.GetCompanyRequest{
-		ID: req.ID,
-	}, nil
+	return request.(*pb.GetCompanyRequest), nil
 }
 
 func encodeGetCompanyResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.GetCompanyResponse)
-	return &pb.GetCompanyResponse{
-		Company: mapListCompanyToPb(res.Company),
-	}, nil
+	return response.(*pb.GetCompanyResponse), nil
 }
 
 func (server *server) ListAllEmployeesInCompany(ctx context.Context, req *pb.ListAllEmployeesInCompanyRequest) (*pb.ListAllEmployeesInCompanyResponse, error) {
@@ -133,17 +102,11 @@ func (server *server) ListAllEmployeesInCompany(ctx context.Context, req *pb.Lis
 }
 
 func decodeListAllEmployeesInCompanyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.ListAllEmployeesInCompanyRequest)
-	return transport.ListAllEmployeesInCompanyRequest{
-		ID: req.ID,
-	}, nil
+	return request.(*pb.ListAllEmployeesInCompanyRequest), nil
 }
 
 func encodeListAllEmployeesInCompanyResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.ListAllEmployeesInCompanyResponse)
-	return &pb.ListAllEmployeesInCompanyResponse{
-		Employees: mapAllListEmployeeToPb(res.Employees),
-	}, nil
+	return response.(*pb.ListAllEmployeesInCompanyResponse), nil
 }
 
 func (server *server) GetEmployee(ctx context.Context, req *pb.GetEmployeeRequest) (*pb.GetEmployeeResponse, error) {
@@ -155,15 +118,9 @@ func (server *server) GetEmployee(ctx context.Context, req *pb.GetEmployeeReques
 }
 
 func decodeGetEmployeeRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.GetEmployeeRequest)
-	return transport.GetEmployeeRequest{
-		ID: req.ID,
-	}, nil
+	return request.(*pb.GetEmployeeRequest), nil
 }
 
 func encodeGetEmployeeResponse(_ context.Context, response interface{}) (interface{}, error) {
-	res := response.(transport.GetEmployeeResponse)
-	return &pb.GetEmployeeResponse{
-		Employee: mapListEmployeeToPb(res.Employee),
-	}, nil
+	return response.(*pb.GetEmployeeResponse), nil
 }
