@@ -1,0 +1,32 @@
+syntax = "proto3";
+package pb;
+
+service SignatureService {
+    rpc Sign (SignRequest) returns (SignResponse);
+    rpc Verify (VerifyRequest) returns (VerifyResponse);
+    rpc CreateKeys (CreateKeysRequest) returns (CreateKeysResponse);
+}
+
+message SignRequest {
+
+}
+
+message SignResponse {
+
+}
+
+message VerifyRequest {
+
+}
+
+message VerifyResponse {
+
+}
+
+message CreateKeysRequest {
+
+}
+
+message CreateKeysResponse {
+
+}
