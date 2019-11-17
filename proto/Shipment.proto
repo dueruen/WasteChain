@@ -39,7 +39,8 @@ message CreateShipmentRequest {
 }
 
 message CreateShipmentResponse {
-    string ID = 1;
+    string error = 1;
+    string ID = 2;
 }
 
 message TransferShipmentRequest {
@@ -48,6 +49,7 @@ message TransferShipmentRequest {
 }
 
 message TransferShipmentResponse {
+    string error = 1;
 
 }
 
@@ -57,6 +59,7 @@ message ProcessShipmentRequest {
 }
 
 message ProcessShipmentResponse {
+    string error = 1;
 
 }
 
@@ -65,7 +68,8 @@ message GetShipmentDetailsRequest {
 }
 
 message GetShipmentDetailsResponse {
-    Shipment shipment = 1;
+    string error =1;
+    Shipment shipment = 2;
 }
 
 message ListAllShipmentsRequest {
@@ -73,5 +77,6 @@ message ListAllShipmentsRequest {
 }
 
 message ListAllShipmentsResponse {
-    repeated Shipment shipmentList = 1;
+    string error = 1;
+    repeated Shipment shipmentList = 2;
 }
