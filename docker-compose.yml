@@ -8,3 +8,10 @@ services:
       POSTGRES_DB: root
     ports:
       - 5432:5432
+  nats:
+    image: nats
+    ports:
+      - 4222:4222
+      - 6222:6222
+      - 8222:8222
+    hostname: nats-main

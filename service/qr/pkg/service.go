@@ -14,7 +14,7 @@ import (
 	pb "github.com/dueruen/WasteChain/service/qr/gen/proto"
 )
 
-const port = ":50051"
+const port = ":50052"
 
 func Run() {
 

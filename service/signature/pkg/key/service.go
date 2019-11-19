@@ -9,9 +9,9 @@ import (
 )
 
 type Repository interface {
-	SaveKeys(userID string, passphrase string, encryptedPrivateKey string, publicKey string) error
-	GetPublicKey(userID string) (publicKey string, err error)
-	GetPrivateKey(userID string) (privateKey string, err error)
+	SaveKeys(userID string, encryptedPrivateKey, publicKey []byte) error
+	GetPublicKey(userID string) (publicKey []byte, err error)
+	GetPrivateKey(userID string) (privateKey []byte, err error)
 }
 
 type Service interface {
@@ -53,7 +53,7 @@ func (service *service) CreateKeyPair(userID string, passphrase string) error {
 		return err
 	}
 
-	err = service.repo.SaveKeys(userID, passphrase, string(ciphertext), string(publicKeyJson))
+	err = service.repo.SaveKeys(userID, ciphertext, publicKeyJson)
 	if err != nil {
 		return err
 	}

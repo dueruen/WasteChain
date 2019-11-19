@@ -10,6 +10,11 @@ service SignatureService {
     rpc CreateKeys (CreateKeysRequest) returns (CreateKeysResponse);
 }
 
+enum SubjectTypes {
+    DOUBLE_SIGN_NEEDED = 0;
+    SIGN_DONE = 1;
+}
+
 enum DoneEventType {
     DOUBLE_SIGN_DONE = 0;
     SINGLE_SIGN_DONE = 1;
@@ -17,13 +22,14 @@ enum DoneEventType {
 
 message DoneEvent {
     DoneEventType EventType = 1;
-    string CurrentHolderSignature = 2;
-    string NewHolderSignature = 3;
+    bytes CurrentHolderSignature = 2;
+    bytes NewHolderSignature = 3;
 }
 
 message DoubleSignNeededEvent {
     string CurrentHolderID = 1;
     bytes QRCode = 2;
+    string ContinueID = 3;
 }
 
 message SingleSignRequest {
@@ -39,7 +45,7 @@ message SingleSignResponse {
 message StartDoubleSignRequest {
     bytes Data = 1;
     string CurrentHolderID = 2;
-    string Password = 3;
+    string CurrentHolderPassword = 3;
 }
 
 message StartDoubleSignResponse {
@@ -49,7 +55,7 @@ message StartDoubleSignResponse {
 message ContinueDoubleSignRequest {
     string ContinueID = 1;
     string NewHolderID = 2;
-    string password = 3;
+    string NewHolderPassword = 3;
 }
 
 message ContinueDoubleSignResponse {
@@ -68,11 +74,11 @@ message SingleVerifyResponse {
 }
 
 message DoubleVerifyRequest {
-    string Data = 1;
+    bytes Data = 1;
     string currentHolderID = 2;
     string NewHolderID = 3;
-    string CurrentHolderSignature = 4;
-    string NewHolderSignature = 5;
+    bytes CurrentHolderSignature = 4;
+    bytes NewHolderSignature = 5;
 }
 
 message DoubleVerifyResponse {
@@ -81,9 +87,10 @@ message DoubleVerifyResponse {
 }
 
 message CreateKeysRequest {
-
+    string UserID = 1;
+    string Passphrase = 2;
 }
 
 message CreateKeysResponse {
-
+    string Error = 1;
 }

@@ -13,8 +13,8 @@ import (
 )
 
 type Repository interface {
-	StoreDoubleSignProgress(id, signature, dataHash string) error
-	GetStoredDoubleSignProgress(id string) (signature, dataHash string, err error)
+	StoreDoubleSignProgress(id string, signature, dataHash []byte) error
+	GetStoredDoubleSignProgress(id string) (signature, dataHash []byte, err error)
 }
 
 type EventHandler interface {
@@ -24,6 +24,11 @@ type EventHandler interface {
 }
 
 type Service interface {
+	StartDoubleSign(req *pb.StartDoubleSignRequest) error
+	ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error
+	SingleSign(req *pb.SingleSignRequest) error
+	SingleVerify(req *pb.SingleVerifyRequest) (bool, error)
+	DoubleVerify(req *pb.DoubleVerifyRequest) (bool, error)
 }
 
 type service struct {
@@ -36,38 +41,39 @@ func NewService(repo Repository, keyService key.Service, eventHandler EventHandl
 	return &service{repo, keyService, eventHandler}
 }
 
-func (service *service) StartDoubleSign(data []byte, currentHolderID, password string) error {
+func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
 	//sign data
-	dataHash, _, signature, err := service.sign(data, currentHolderID, password)
+	dataHash, _, signature, err := service.sign(req.Data, req.CurrentHolderID, req.CurrentHolderPassword)
 	if err != nil {
 		return err
 	}
 
 	//Store progres for the next to sign
 	id, _ := uuid.NewV4()
-	err = service.repo.StoreDoubleSignProgress(id.String(), string(signature), string(dataHash))
+	err = service.repo.StoreDoubleSignProgress(id.String(), signature, dataHash)
 	if err != nil {
 		return err
 	}
 
 	//Public event DoubleSignNeeded
 	service.eventHandler.DoubleSignNeeded(&pb.DoubleSignNeededEvent{
-		CurrentHolderID: currentHolderID,
+		CurrentHolderID: req.CurrentHolderID,
+		ContinueID:      id.String(),
 		QRCode:          nil,
 	})
 
 	return nil
 }
 
-func (service *service) ContinueDoubleSign(continueID, newHolderID, password string) error {
+func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error {
 	//Get stored progress
-	currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(continueID)
+	currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(req.ContinueID)
 	if err != nil {
 		return err
 	}
 
 	//New holder sign
-	_, _, newHolderSignature, err := service.sign([]byte(firstDataHash), newHolderID, password)
+	_, _, newHolderSignature, err := service.sign(firstDataHash, req.NewHolderID, req.NewHolderPassword)
 	if err != nil {
 		return err
 	}
@@ -76,15 +82,14 @@ func (service *service) ContinueDoubleSign(continueID, newHolderID, password str
 	service.eventHandler.DoubleSignDone(&pb.DoneEvent{
 		EventType:              pb.DoneEventType_DOUBLE_SIGN_DONE,
 		CurrentHolderSignature: currentHolderSignature,
-		NewHolderSignature:     string(newHolderSignature),
+		NewHolderSignature:     newHolderSignature,
 	})
-
 	return nil
 }
 
-func (service *service) SingleSign(data []byte, userID, password string) error {
+func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 	//sign data
-	_, _, signature, err := service.sign(data, userID, password)
+	_, _, signature, err := service.sign(req.Data, req.UserID, req.Password)
 	if err != nil {
 		return err
 	}
@@ -92,31 +97,31 @@ func (service *service) SingleSign(data []byte, userID, password string) error {
 	//Public event SingleSignDone
 	service.eventHandler.SingleSignDone(&pb.DoneEvent{
 		EventType:              pb.DoneEventType_SINGLE_SIGN_DONE,
-		CurrentHolderSignature: string(signature),
+		CurrentHolderSignature: signature,
 	})
 
 	return nil
 }
 
-func (service *service) SingleVerify(userID string, data, signature []byte) (bool, error) {
+func (service *service) SingleVerify(req *pb.SingleVerifyRequest) (bool, error) {
 	//Hash data
-	dataHash, _ := hashData(data)
+	dataHash, _ := hashData(req.Data)
 
 	//Verify
-	ok, err := service.verify(userID, dataHash, signature)
+	ok, err := service.verify(req.UserID, dataHash, req.Signature)
 	if !ok || err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (service *service) DoubleVerify(input *pb.DoubleVerifyRequest) (bool, error) {
+func (service *service) DoubleVerify(req *pb.DoubleVerifyRequest) (bool, error) {
 	//Hash data
-	dataHash, _ := hashData([]byte(input.Data))
+	dataHash, _ := hashData(req.Data)
 
 	//Verify currentHolder
-	ok, err := service.verify(input.CurrentHolderID, dataHash, []byte(input.CurrentHolderSignature))
-	if !ok || err != nil {
+	_, err := service.verify(req.CurrentHolderID, dataHash, req.CurrentHolderSignature)
+	if err != nil {
 		return false, err
 	}
 
@@ -124,8 +129,8 @@ func (service *service) DoubleVerify(input *pb.DoubleVerifyRequest) (bool, error
 	newDataHash, _ := hashData(dataHash)
 
 	//Verify nextHolder
-	ok, err = service.verify(input.NewHolderID, newDataHash, []byte(input.NewHolderSignature))
-	if !ok || err != nil {
+	_, err = service.verify(req.NewHolderID, newDataHash, req.NewHolderSignature)
+	if err != nil {
 		return false, err
 	}
 	return true, nil

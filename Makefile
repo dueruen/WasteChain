@@ -1,4 +1,4 @@
-compileAll: account apiGateway signature
+compileAll: account apiGateway signature qr
 
 account:
 	cd service/account && make compile
@@ -8,3 +8,6 @@ apiGateway:
 
 signature:
 	cd service/signature && make compile
+
+qr:
+	cd service/qr && make compile
