@@ -1,8 +1,6 @@
 package event
 
 import (
-	b64 "encoding/base64"
-	"fmt"
 	"log"
 
 	pb "github.com/dueruen/WasteChain/service/qr/gen/proto"
@@ -22,9 +20,6 @@ func NewEventHandler(url string) (*eventHandler, error) {
 }
 
 func (handler *eventHandler) QRCreated(event *pb.QRCreatedEvent) {
-	fmt.Println("QR Created: ", event)
-	sEnc := b64.StdEncoding.EncodeToString([]byte(event.QRCode))
-	fmt.Println("Base64: ", sEnc)
 	err := handler.natsConn.Publish(pb.QRSubjectTypes_QR_CREATED.String(), event)
 	if err != nil {
 		log.Fatal(err)
