@@ -10,7 +10,7 @@ service SignatureService {
     rpc CreateKeys (CreateKeysRequest) returns (CreateKeysResponse);
 }
 
-enum SubjectTypes {
+enum SignSubjectTypes {
     DOUBLE_SIGN_NEEDED = 0;
     SIGN_DONE = 1;
 }

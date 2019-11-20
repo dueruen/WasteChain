@@ -12,10 +12,11 @@ import (
 
 const (
 	//Correct data
-	//constData = "Some data"
+	constData = "ALL VERIFICATIONS SHOULD -- PASS"
 
-	//Check that it fails
-	constData = "Some data CHANGED"
+//Check that it fails
+//fmt.Println("ALL VERIFICATIONS SHOULD -- FAIL")
+//constData = "ALL VERIFICATIONS SHOULD -- FAIL"
 )
 
 func main() {
@@ -25,6 +26,8 @@ func main() {
 		log.Fatalf("Could not connect %v", err)
 	}
 	defer cc.Close()
+
+	fmt.Println("DATA: ", constData)
 
 	client := pb.NewSignatureServiceClient(cc)
 
@@ -44,7 +47,7 @@ func Listen(url string, signClient pb.SignatureServiceClient) (err error) {
 		return
 	}
 
-	conn.QueueSubscribe(pb.SubjectTypes_SIGN_DONE.String(), "done-queue", func(e *pb.DoneEvent) {
+	conn.QueueSubscribe(pb.SignSubjectTypes_SIGN_DONE.String(), "done-queue", func(e *pb.DoneEvent) {
 		switch e.EventType {
 		case pb.DoneEventType_DOUBLE_SIGN_DONE:
 			{
@@ -81,8 +84,9 @@ func Listen(url string, signClient pb.SignatureServiceClient) (err error) {
 		}
 	})
 
-	conn.QueueSubscribe(pb.SubjectTypes_DOUBLE_SIGN_NEEDED.String(), "sign-queue", func(e *pb.DoubleSignNeededEvent) {
+	conn.QueueSubscribe(pb.SignSubjectTypes_DOUBLE_SIGN_NEEDED.String(), "sign-queue", func(e *pb.DoubleSignNeededEvent) {
 		fmt.Printf("Double sign event\n")
+		fmt.Println("QR code is: ", e.QRCode)
 		_, err := signClient.ContinueDoubleSign(context.Background(), &pb.ContinueDoubleSignRequest{
 			ContinueID:        e.ContinueID,
 			NewHolderID:       "user2",

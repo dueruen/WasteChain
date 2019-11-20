@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -13,8 +14,8 @@ import (
 )
 
 type Repository interface {
-	StoreDoubleSignProgress(id string, signature, dataHash []byte) error
-	GetStoredDoubleSignProgress(id string) (signature, dataHash []byte, err error)
+	StoreDoubleSignProgress(progressID, currentHolderID string, signature, dataHash []byte) error
+	GetStoredDoubleSignProgress(id string) (currentHolderID string, signature, dataHash []byte, err error)
 }
 
 type EventHandler interface {
@@ -25,6 +26,7 @@ type EventHandler interface {
 
 type Service interface {
 	StartDoubleSign(req *pb.StartDoubleSignRequest) error
+	FinishStartDoubleSign(progressID string, qrCode []byte)
 	ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error
 	SingleSign(req *pb.SingleSignRequest) error
 	SingleVerify(req *pb.SingleVerifyRequest) (bool, error)
@@ -35,10 +37,11 @@ type service struct {
 	repo         Repository
 	keyService   key.Service
 	eventHandler EventHandler
+	qrClient     pb.QRServiceClient
 }
 
-func NewService(repo Repository, keyService key.Service, eventHandler EventHandler) Service {
-	return &service{repo, keyService, eventHandler}
+func NewService(repo Repository, keyService key.Service, eventHandler EventHandler, qrClient pb.QRServiceClient) Service {
+	return &service{repo, keyService, eventHandler, qrClient}
 }
 
 func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
@@ -50,24 +53,34 @@ func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
 
 	//Store progres for the next to sign
 	id, _ := uuid.NewV4()
-	err = service.repo.StoreDoubleSignProgress(id.String(), signature, dataHash)
+	err = service.repo.StoreDoubleSignProgress(id.String(), req.CurrentHolderID, signature, dataHash)
 	if err != nil {
 		return err
 	}
 
-	//Public event DoubleSignNeeded
-	service.eventHandler.DoubleSignNeeded(&pb.DoubleSignNeededEvent{
-		CurrentHolderID: req.CurrentHolderID,
-		ContinueID:      id.String(),
-		QRCode:          nil,
+	service.qrClient.CreateQRCode(context.Background(), &pb.CreateQRRequest{
+		ID:         id.String(),
+		DataString: id.String(),
 	})
 
 	return nil
 }
 
+func (service *service) FinishStartDoubleSign(progressID string, qrCode []byte) {
+	//Get stored progress
+	currentHolderID, _, _, _ := service.repo.GetStoredDoubleSignProgress(progressID)
+
+	//Public event DoubleSignNeeded
+	service.eventHandler.DoubleSignNeeded(&pb.DoubleSignNeededEvent{
+		CurrentHolderID: currentHolderID,
+		ContinueID:      progressID,
+		QRCode:          qrCode,
+	})
+}
+
 func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error {
 	//Get stored progress
-	currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(req.ContinueID)
+	_, currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(req.ContinueID)
 	if err != nil {
 		return err
 	}

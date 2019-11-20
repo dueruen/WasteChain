@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	constData = "Some data"
+	constData = "ALL VERIFICATIONS SHOULD -- PASS"
 )
 
 func main() {

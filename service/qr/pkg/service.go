@@ -2,9 +2,11 @@ package pkg
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/dueruen/WasteChain/service/qr/pkg/creating"
+	"github.com/dueruen/WasteChain/service/qr/pkg/event"
 	"github.com/dueruen/WasteChain/service/qr/pkg/transport"
 	grpctransport "github.com/dueruen/WasteChain/service/qr/pkg/transport/grpc"
 	kitoc "github.com/go-kit/kit/tracing/opencensus"
@@ -18,7 +20,13 @@ const port = ":50052"
 
 func Run() {
 
-	creatingService := creating.NewService()
+	eventHandler, errSub := event.NewEventHandler("localhost:4222")
+	if errSub != nil {
+		log.Fatalf("Could not connect to NATS %v", errSub)
+	}
+	fmt.Printf("Connection to NATS service made\n")
+
+	creatingService := creating.NewService(eventHandler)
 	var endpoints transport.Endpoints
 	{
 		endpoints = transport.MakeEndpoints(creatingService)
