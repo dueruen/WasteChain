@@ -1,6 +1,8 @@
 package creating
 
 import (
+	"time"
+
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
 )
 
@@ -9,7 +11,7 @@ type Service interface {
 }
 
 type Repository interface {
-	CreateNewShipment(creationRequest *pb.CreateShipmentRequest) (string, error)
+	CreateNewShipment(creationRequest *pb.CreateShipmentRequest, timestamp string) (string, error)
 }
 
 type service struct {
@@ -21,5 +23,5 @@ func NewService(createRepo Repository) Service {
 }
 
 func (srv *service) CreateShipment(creationRequest *pb.CreateShipmentRequest) (string, error) {
-	return srv.createRepo.CreateNewShipment(creationRequest)
+	return srv.createRepo.CreateNewShipment(creationRequest, time.Now().String())
 }

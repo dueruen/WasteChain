@@ -5,12 +5,12 @@ import (
 )
 
 type Service interface {
-	GetShipmentDetails(string) (error, *pb.Shipment)
+	GetShipmentDetails(*pb.GetShipmentDetailsRequest) (error, *pb.Shipment)
 	ListAllShipments() (error, []*pb.Shipment)
 }
 
 type Repository interface {
-	GetShipmentDetails(string) (error, *pb.Shipment)
+	GetShipmentDetails(*pb.GetShipmentDetailsRequest) (error, *pb.Shipment)
 	ListAllShipments() (error, []*pb.Shipment)
 }
 
@@ -22,8 +22,8 @@ func NewService(listRepo Repository) Service {
 	return &service{listRepo}
 }
 
-func (srv *service) GetShipmentDetails(id string) (error, *pb.Shipment) {
-	return srv.listRepo.GetShipmentDetails(id)
+func (srv *service) GetShipmentDetails(request *pb.GetShipmentDetailsRequest) (error, *pb.Shipment) {
+	return srv.listRepo.GetShipmentDetails(request)
 }
 
 func (srv *service) ListAllShipments() (error, []*pb.Shipment) {

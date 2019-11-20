@@ -35,6 +35,7 @@ enum ShipmentEvent {
 message CreateShipmentRequest {
     string WasteType = 1;
     string CurrentHolderID = 2;
+    string Location = 3;
 
 }
 
@@ -44,8 +45,10 @@ message CreateShipmentResponse {
 }
 
 message TransferShipmentRequest {
-    string OwnerID = 1;
-    string ReceiverID = 2;
+    string ShipmentID = 1;
+    string OwnerID = 2;
+    string ReceiverID = 3;
+    string Location = 4;
 }
 
 message TransferShipmentResponse {
@@ -56,6 +59,7 @@ message TransferShipmentResponse {
 message ProcessShipmentRequest {
     string ID = 1;
     string OwnerID = 2;
+    string Location = 3;
 }
 
 message ProcessShipmentResponse {
@@ -68,8 +72,8 @@ message GetShipmentDetailsRequest {
 }
 
 message GetShipmentDetailsResponse {
-    string error =1;
-    Shipment shipment = 2;
+    Shipment shipment = 1;
+    string error =2;
 }
 
 message ListAllShipmentsRequest {
