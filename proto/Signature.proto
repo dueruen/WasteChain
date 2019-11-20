@@ -1,0 +1,96 @@
+syntax = "proto3";
+package pb;
+
+service SignatureService {
+    rpc SingleSign (SingleSignRequest) returns (SingleSignResponse);
+    rpc StartDoubleSign (StartDoubleSignRequest) returns (StartDoubleSignResponse);
+    rpc ContinueDoubleSign (ContinueDoubleSignRequest) returns (ContinueDoubleSignResponse);
+    rpc SingleVerify (SingleVerifyRequest) returns (SingleVerifyResponse);
+    rpc DoubleVerify (DoubleVerifyRequest) returns (DoubleVerifyResponse);
+    rpc CreateKeys (CreateKeysRequest) returns (CreateKeysResponse);
+}
+
+enum SignSubjectTypes {
+    DOUBLE_SIGN_NEEDED = 0;
+    SIGN_DONE = 1;
+}
+
+enum DoneEventType {
+    DOUBLE_SIGN_DONE = 0;
+    SINGLE_SIGN_DONE = 1;
+}
+
+message DoneEvent {
+    DoneEventType EventType = 1;
+    bytes CurrentHolderSignature = 2;
+    bytes NewHolderSignature = 3;
+}
+
+message DoubleSignNeededEvent {
+    string CurrentHolderID = 1;
+    bytes QRCode = 2;
+    string ContinueID = 3;
+}
+
+message SingleSignRequest {
+    bytes Data = 1;
+    string UserID = 2;
+    string Password = 3;
+}
+
+message SingleSignResponse {
+    string Error = 1;
+}
+
+message StartDoubleSignRequest {
+    bytes Data = 1;
+    string CurrentHolderID = 2;
+    string CurrentHolderPassword = 3;
+}
+
+message StartDoubleSignResponse {
+    string Error = 1;
+}
+
+message ContinueDoubleSignRequest {
+    string ContinueID = 1;
+    string NewHolderID = 2;
+    string NewHolderPassword = 3;
+}
+
+message ContinueDoubleSignResponse {
+    string Error = 1;
+}
+
+message SingleVerifyRequest {
+    string UserID = 1;
+    bytes Data = 2;
+    bytes Signature = 3;
+}
+
+message SingleVerifyResponse {
+    bool Ok = 1;
+    string Error = 2;
+}
+
+message DoubleVerifyRequest {
+    bytes Data = 1;
+    string currentHolderID = 2;
+    string NewHolderID = 3;
+    bytes CurrentHolderSignature = 4;
+    bytes NewHolderSignature = 5;
+}
+
+message DoubleVerifyResponse {
+    bool Ok = 1;
+    string Error = 2;
+}
+
+message CreateKeysRequest {
+    string UserID = 1;
+    string Passphrase = 2;
+}
+
+message CreateKeysResponse {
+    string Error = 1;
+}

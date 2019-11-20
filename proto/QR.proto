@@ -5,13 +5,22 @@ service QRService {
     rpc CreateQRCode(CreateQRRequest) returns (CreateQRResponse);
 }
 
+enum QRSubjectTypes {
+    QR_CREATED = 0;
+}
+
 message CreateQRRequest {
-    string dataString = 1;
+    string ID = 1;
+    string DataString = 2;
 }
 
 
 message CreateQRResponse {
-    bytes qrCode = 1;
-    string error = 2;
+    string Error = 1;
+}
+
+message QRCreatedEvent {
+    string ID = 1;
+    bytes QRCode = 2;
 }
 

@@ -21,8 +21,8 @@ func MakeEndpoints(createService creating.Service) Endpoints {
 func makeCreateQRCodeEndpoint(service creating.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*pb.CreateQRRequest)
-		res, _ := service.CreateQRCode(&req.DataString)
-		return &pb.CreateQRResponse{QrCode: *res}, nil
+		service.CreateQRCode(req.ID, req.DataString)
+		return &pb.CreateQRResponse{}, nil
 	}
 
 }
