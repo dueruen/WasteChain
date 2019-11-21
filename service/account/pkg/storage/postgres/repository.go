@@ -49,8 +49,9 @@ func createSchema(db *gorm.DB) error {
 	return nil
 }
 
-func (storage *Storage) CreateNewCompany(company *pb.CreateCompany) (*pb.Company, error) {
+func (storage *Storage) CreateNewCompany(id string, company *pb.CreateCompany) (*pb.Company, error) {
 	newCompany := &pb.Company{
+		ID:   id,
 		Name: company.Name,
 		Address: &pb.Address{
 			Number:   company.Address.Number,
@@ -65,8 +66,6 @@ func (storage *Storage) CreateNewCompany(company *pb.CreateCompany) (*pb.Company
 			},
 		},
 	}
-	id, _ := uuid.NewV4()
-	newCompany.ID = id.String()
 
 	addressID, _ := uuid.NewV4()
 	newCompany.Address.ID = addressID.String()
@@ -79,13 +78,12 @@ func (storage *Storage) CreateNewCompany(company *pb.CreateCompany) (*pb.Company
 	return newCompany, nil
 }
 
-func (storage *Storage) CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, error) {
+func (storage *Storage) CreateEmployee(id string, employee *pb.CreateEmployee) (*pb.Employee, error) {
 	newEmployee := &pb.Employee{
+		ID:        id,
 		Name:      employee.Name,
 		CompanyID: employee.CompanyID,
 	}
-	uuid, _ := uuid.NewV4()
-	newEmployee.ID = uuid.String()
 	storage.db.Create(newEmployee)
 	return newEmployee, nil
 }
