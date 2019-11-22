@@ -2,13 +2,13 @@ package sub
 
 import (
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
-	"github.com/dueruen/WasteChain/service/shipment/pkg/event_validating"
+	"github.com/dueruen/WasteChain/service/shipment/pkg/eventvalidating"
 	"github.com/nats-io/go-nats"
 )
 
 type eventHandler struct {
 	natsConn      *nats.EncodedConn
-	validationSrv event_validating.Service
+	validationSrv eventvalidating.Service
 }
 
 func connectToNats(url string) (encodedConn *nats.EncodedConn, err error) {
@@ -19,7 +19,7 @@ func connectToNats(url string) (encodedConn *nats.EncodedConn, err error) {
 	return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
 }
 
-func StartListening(url string, validationSrv event_validating.Service) error {
+func StartListening(url string, validationSrv eventvalidating.Service) error {
 	conn, err := connectToNats(url)
 	if err != nil {
 		return err

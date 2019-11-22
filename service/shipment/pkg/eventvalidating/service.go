@@ -1,4 +1,4 @@
-package event_validating
+package eventvalidating
 
 type Service interface {
 	ValidateLatestHistoryEvent(shipmentID string) error

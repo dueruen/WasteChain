@@ -43,7 +43,7 @@ func createSchema(db *gorm.DB) error {
 		return nil
 	}
 
-	db.AutoMigrate(&pb.Shipment{})
+	db.AutoMigrate(&pb.Shipment{}, &pb.HistoryItem{})
 
 	return nil
 }

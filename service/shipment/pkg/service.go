@@ -2,11 +2,12 @@ package pkg
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/dueruen/WasteChain/service/shipment/pkg/creating"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/event/sub"
-	"github.com/dueruen/WasteChain/service/shipment/pkg/event_validating"
+	"github.com/dueruen/WasteChain/service/shipment/pkg/eventvalidating"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/listing"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/processing"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/storage/postgres"
@@ -24,25 +25,25 @@ type creatingRepository = creating.Repository
 type listingRepository = listing.Repository
 type transferingRepository = transfering.Repository
 type processingRepository = processing.Repository
-type validationRepository = event_validating.Repository
+type validationRepository = eventvalidating.Repository
 
 type creatingService = creating.Service
 type listingService = listing.Service
 type transferingService = transfering.Service
 type processingService = processing.Service
-type validationService = event_validating.Service
+type validationService = eventvalidating.Service
 
 const port = ":50055"
 
 func Run() {
-	storage, err := postgres.NewStorage("localhost", "5433", "root", "root", "root")
+	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
 
 	//Creating validation service
-	event_validating.NewService(storage)
+	validationService := eventvalidating.NewService(storage)
 
 	//Connect to Signature Service
 	cc, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
@@ -53,17 +54,19 @@ func Run() {
 	}
 	defer cc.Close()
 
+	signClient := pb.NewSignatureServiceClient(cc)
+
 	//Connect Sub to NATS
 	errSub := sub.StartListening("localhost:4222", validationService)
 	if errSub != nil {
-		log.FatalF("Could not connect to NATS %v", errSub)
+		log.Fatalf("Could not connect to NATS %v", errSub)
 	}
-	fmft.Printf("Sub connection to NATS service made\n")
+	fmt.Printf("Sub connection to NATS service made\n")
 
-	creatingService := creating.NewService(storage)
+	creatingService := creating.NewService(storage, signClient)
 	listingService := listing.NewService(storage)
-	transferingService := transfering.NewService(storage)
-	processingService := processing.NewService(storage)
+	transferingService := transfering.NewService(storage, signClient)
+	processingService := processing.NewService(storage, signClient)
 
 	var endpoints transport.Endpoints
 	{
