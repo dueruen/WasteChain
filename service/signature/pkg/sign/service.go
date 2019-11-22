@@ -14,8 +14,8 @@ import (
 )
 
 type Repository interface {
-	StoreDoubleSignProgress(progressID, currentHolderID string, signature, dataHash []byte) error
-	GetStoredDoubleSignProgress(id string) (currentHolderID string, signature, dataHash []byte, err error)
+	StoreDoubleSignProgress(progressID, currentHolderID, shipmentID string, signature, dataHash []byte) error
+	GetStoredDoubleSignProgress(id string) (currentHolderID, shipmentID string, signature, dataHash []byte, err error)
 }
 
 type EventHandler interface {
@@ -53,7 +53,7 @@ func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
 
 	//Store progres for the next to sign
 	id, _ := uuid.NewV4()
-	err = service.repo.StoreDoubleSignProgress(id.String(), req.CurrentHolderID, signature, dataHash)
+	err = service.repo.StoreDoubleSignProgress(id.String(), req.CurrentHolderID, req.ShipmentID, signature, dataHash)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
 
 func (service *service) FinishStartDoubleSign(progressID string, qrCode []byte) {
 	//Get stored progress
-	currentHolderID, _, _, _ := service.repo.GetStoredDoubleSignProgress(progressID)
+	currentHolderID, _, _, _, _ := service.repo.GetStoredDoubleSignProgress(progressID)
 
 	//Public event DoubleSignNeeded
 	service.eventHandler.DoubleSignNeeded(&pb.DoubleSignNeededEvent{
@@ -80,7 +80,7 @@ func (service *service) FinishStartDoubleSign(progressID string, qrCode []byte) 
 
 func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error {
 	//Get stored progress
-	_, currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(req.ContinueID)
+	_, shipmentID, currentHolderSignature, firstDataHash, err := service.repo.GetStoredDoubleSignProgress(req.ContinueID)
 	if err != nil {
 		return err
 	}
@@ -96,6 +96,7 @@ func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) er
 		EventType:              pb.DoneEventType_DOUBLE_SIGN_DONE,
 		CurrentHolderSignature: currentHolderSignature,
 		NewHolderSignature:     newHolderSignature,
+		ShipmentID:             shipmentID,
 	})
 	return nil
 }
@@ -111,6 +112,7 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 	service.eventHandler.SingleSignDone(&pb.DoneEvent{
 		EventType:              pb.DoneEventType_SINGLE_SIGN_DONE,
 		CurrentHolderSignature: signature,
+		ShipmentID:             req.ShipmentID,
 	})
 
 	return nil
