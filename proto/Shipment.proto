@@ -24,6 +24,7 @@ message HistoryItem {
     string ReceiverID = 3;
     string TimeStamp = 4;
     string Location = 5;
+    bool Validated = 6;
 }
 
 enum ShipmentEvent {
@@ -36,6 +37,7 @@ message CreateShipmentRequest {
     string WasteType = 1;
     string CurrentHolderID = 2;
     string Location = 3;
+    string Password = 4;
 
 }
 
@@ -49,6 +51,7 @@ message TransferShipmentRequest {
     string OwnerID = 2;
     string ReceiverID = 3;
     string Location = 4;
+    string Password = 5;
 }
 
 message TransferShipmentResponse {
@@ -60,6 +63,7 @@ message ProcessShipmentRequest {
     string ID = 1;
     string OwnerID = 2;
     string Location = 3;
+    string Password = 4;
 }
 
 message ProcessShipmentResponse {

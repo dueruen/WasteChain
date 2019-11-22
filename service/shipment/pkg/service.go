@@ -5,6 +5,8 @@ import (
 	"net"
 
 	"github.com/dueruen/WasteChain/service/shipment/pkg/creating"
+	"github.com/dueruen/WasteChain/service/shipment/pkg/event/sub"
+	"github.com/dueruen/WasteChain/service/shipment/pkg/event_validating"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/listing"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/processing"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/storage/postgres"
@@ -22,13 +24,15 @@ type creatingRepository = creating.Repository
 type listingRepository = listing.Repository
 type transferingRepository = transfering.Repository
 type processingRepository = processing.Repository
+type validationRepository = event_validating.Repository
 
 type creatingService = creating.Service
 type listingService = listing.Service
 type transferingService = transfering.Service
 type processingService = processing.Service
+type validationService = event_validating.Service
 
-const port = ":50051"
+const port = ":50055"
 
 func Run() {
 	storage, err := postgres.NewStorage("localhost", "5433", "root", "root", "root")
@@ -36,6 +40,26 @@ func Run() {
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
+
+	//Creating validation service
+	event_validating.NewService(storage)
+
+	//Connect to Signature Service
+	cc, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Signature service %v", err)
+	} else {
+		fmt.Printf("Connection to Signature service made\n")
+	}
+	defer cc.Close()
+
+	//Connect Sub to NATS
+	errSub := sub.StartListening("localhost:4222", validationService)
+	if errSub != nil {
+		log.FatalF("Could not connect to NATS %v", errSub)
+	}
+	fmft.Printf("Sub connection to NATS service made\n")
+
 	creatingService := creating.NewService(storage)
 	listingService := listing.NewService(storage)
 	transferingService := transfering.NewService(storage)

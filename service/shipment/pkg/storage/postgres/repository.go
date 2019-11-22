@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/gorm"
@@ -46,7 +48,7 @@ func createSchema(db *gorm.DB) error {
 	return nil
 }
 
-func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string) (string, error) {
+func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string) (string, *pb.HistoryItem, error) {
 	newShipment := &pb.Shipment{
 		CurrentHolderID: shipment.CurrentHolderID,
 		WasteType:       shipment.WasteType,
@@ -54,18 +56,20 @@ func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, ti
 			&pb.HistoryItem{
 				Event:      0,
 				OwnerID:    shipment.CurrentHolderID,
-				ReceiverID: "0",
+				ReceiverID: "",
 				TimeStamp:  timestamp,
 				Location:   shipment.Location,
+				Validated:  false,
 			},
 		},
 	}
 
+	historyItem := newShipment.History[len(newShipment.History)-1]
 	id, _ := uuid.NewV4()
 	newShipment.ID = id.String()
 
 	storage.db.Create(newShipment)
-	return newShipment.ID, nil
+	return newShipment.ID, historyItem, nil
 }
 
 func (storage *Storage) GetShipmentDetails(getRequest *pb.GetShipmentDetailsRequest) (error, *pb.Shipment) {
@@ -103,9 +107,10 @@ func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentReques
 	processEvent := &pb.HistoryItem{
 		Event:      2,
 		OwnerID:    processRequest.OwnerID,
-		ReceiverID: "0",
+		ReceiverID: "",
 		TimeStamp:  timeStamp,
 		Location:   processRequest.Location,
+		Validated:  false,
 	}
 	history = append(history, processEvent)
 	shipment.History = history
@@ -127,11 +132,31 @@ func (storage *Storage) TransferShipment(transferRequest *pb.TransferShipmentReq
 		ReceiverID: transferRequest.ReceiverID,
 		TimeStamp:  timestamp,
 		Location:   transferRequest.Location,
+		Validated:  false,
 	}
 	history = append(history, processEvent)
 	shipment.History = history
 
 	storage.db.Update(shipment)
 	return nil
+}
 
+func (storage *Storage) ValidateLatestHistoryEvent(shipmentID string) error {
+	var shipment pb.Shipment
+	storage.db.Where("id = ?", shipmentID).First(&shipment)
+	shipment = *getAllShipmentData(storage.db, &shipment)
+
+	history := shipment.History
+	latestEventIndex := len(history) - 1
+	eventToValidate := history[latestEventIndex]
+
+	if eventToValidate.Validated == true {
+		fmt.Printf("Following Shipment's latest historyevent is already valid: %v", shipmentID)
+		return nil
+	}
+
+	eventToValidate.Validated = true
+
+	storage.db.Update(shipment)
+	return nil
 }
