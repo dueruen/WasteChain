@@ -97,7 +97,7 @@ func getAllShipmentData(db *gorm.DB, shipment *pb.Shipment) *pb.Shipment {
 	return shipment
 }
 
-func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentRequest, timeStamp string) error {
+func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentRequest, timeStamp string) (*pb.HistoryItem, error) {
 	var shipment pb.Shipment
 	storage.db.Where("id = ?", processRequest.ID).First(&shipment)
 	shipment = *getAllShipmentData(storage.db, &shipment)
@@ -116,17 +116,17 @@ func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentReques
 	shipment.History = history
 
 	storage.db.Update(shipment)
-	return nil
+	return processEvent, nil
 }
 
-func (storage *Storage) TransferShipment(transferRequest *pb.TransferShipmentRequest, timestamp string) error {
+func (storage *Storage) TransferShipment(transferRequest *pb.TransferShipmentRequest, timestamp string) (*pb.HistoryItem, error) {
 	var shipment pb.Shipment
 	storage.db.Where("id = ?", transferRequest.ShipmentID).First(&shipment)
 	shipment = *getAllShipmentData(storage.db, &shipment)
 
 	history := shipment.History
 
-	processEvent := &pb.HistoryItem{
+	transferEvent := &pb.HistoryItem{
 		Event:      1,
 		OwnerID:    transferRequest.OwnerID,
 		ReceiverID: transferRequest.ReceiverID,
@@ -134,11 +134,11 @@ func (storage *Storage) TransferShipment(transferRequest *pb.TransferShipmentReq
 		Location:   transferRequest.Location,
 		Validated:  false,
 	}
-	history = append(history, processEvent)
+	history = append(history, transferEvent)
 	shipment.History = history
 
 	storage.db.Update(shipment)
-	return nil
+	return transferEvent, nil
 }
 
 func (storage *Storage) ValidateLatestHistoryEvent(shipmentID string) error {
