@@ -33,8 +33,8 @@ func StartListening(url string, validationSrv event_validating.Service) error {
 }
 
 func (handler *eventHandler) listenToBlockchain() {
-	handler.natsConn.QueueSubscribe(pb.BlockchainSubjectTypes_SHIPMENT_EVENT_PUBLISHED.String(),
-		"queue", func(e *pb.ShipmentEventPublishedEvent) {
+	handler.natsConn.QueueSubscribe(pb.BlockchainSubjectTypes_Published.String(),
+		"queue", func(e *pb.PublishedEvent) {
 			handler.validationSrv.ValidateLatestHistoryEvent(e.ShipmentID)
 		})
 }
