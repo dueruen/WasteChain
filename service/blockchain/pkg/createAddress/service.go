@@ -23,6 +23,8 @@ func New(endpoint string) (addr, seed string, err error) {
 	// GetNewAddress retrieves the first unspent from address through IRI
 	//addresses, err := api.GetNewAddress(seed, iotaAPI.GetNewAddressOptions{})
 	address, err := address.GenerateAddress(seed, 1, consts.SecurityLevelMedium, true)
+	fmt.Println("NEW addr: ", address)
+	fmt.Println("LEN: ", len(address))
 	if err != nil {
 		return "", "", err
 	}

@@ -1,16 +1,12 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/dueruen/WasteChain/service/blockchain/pkg/createAddress"
-)
-
-var endpoint = "https://nodes.devnet.thetangle.org"
+import "github.com/dueruen/WasteChain/service/blockchain/pkg"
 
 func main() {
-	info, err := createAddress.CreateAddress(endpoint)
-	fmt.Println("info: ", info, " err: ", err)
+	pkg.Run()
+
+	// info, err := createAddress.CreateAddress(endpoint)
+	// fmt.Println("info: ", info, " err: ", err)
 	//addr, _, err := service.CreateAddress(endpoint)
 
 	// if err != nil {

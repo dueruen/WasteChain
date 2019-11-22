@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
 	iotaAPI "github.com/iotaledger/iota.go/api"
 	"github.com/iotaledger/iota.go/converter"
@@ -16,35 +17,46 @@ type Repository interface {
 	GetShipmentAddress(shipmentID string) (addr string, err error)
 }
 
+type EventHandler interface {
+	DataFound(event *pb.DataFoundEvent)
+}
+
 type Service interface {
-	GetShipmentData(shipmentID string) ([]string, error)
+	GetShipmentData(shipmentID string) error
 }
 
 type service struct {
-	repo     Repository
-	endpoint string
+	repo         Repository
+	endpoint     string
+	eventHandler EventHandler
 }
 
-func NewService(repo Repository, endpoint string) Service {
-	return &service{repo, endpoint}
+func NewService(repo Repository, endpoint string, eventHandler EventHandler) Service {
+	return &service{repo, endpoint, eventHandler}
 }
 
-func (srv *service) GetShipmentData(shipmentID string) ([]string, error) {
+func (srv *service) GetShipmentData(shipmentID string) error {
 	shipmentAddr, err := srv.repo.GetShipmentAddress(shipmentID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if shipmentAddr == "" {
-		return nil, errors.New("Shipment don't exists!!")
+		return errors.New("Shipment don't exists!!")
 	}
 	history, err := receive(shipmentAddr, srv.endpoint)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return history, nil
+
+	srv.eventHandler.DataFound(&pb.DataFoundEvent{
+		ShipmentID: shipmentID,
+		Data:       history,
+	})
+
+	return nil
 }
 
-func receive(address, endpoint string) ([]string, error) {
+func receive(address, endpoint string) ([][]byte, error) {
 	query := iotaAPI.FindTransactionsQuery{Addresses: trinary.Hashes{address}}
 
 	api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})
@@ -73,19 +85,19 @@ func receive(address, endpoint string) ([]string, error) {
 		buffers[i].WriteString(tx.SignatureMessageFragment)
 	}
 
-	messages := make([]string, 0)
+	messages := make([][]byte, 0)
 	for _, buf := range buffers {
 		suf := strings.Replace(buf.String(), "9", "", -1)
 		msg, err := converter.TrytesToASCII(suf)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("TrytesToASCII: " + err.Error())
 		}
 		decompressData, err := compress.Decompress(msg)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Decompress: " + err.Error())
 		}
 
-		messages = append(messages, string(decompressData))
+		messages = append(messages, decompressData)
 	}
 	return messages, nil
 }
