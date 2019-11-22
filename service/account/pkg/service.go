@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/dueruen/WasteChain/service/account/pkg/creating"
@@ -30,7 +31,19 @@ func Run() {
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
-	creatingService := creating.NewService(storage)
+
+	//Connect to Authentication Service
+	authConn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Authentication service %v", err)
+	} else {
+		fmt.Printf("Connection to Authentication service made\n")
+	}
+	defer authConn.Close()
+
+	authClient := pb.NewAuthenticationServiceClient(authConn)
+
+	creatingService := creating.NewService(storage, authClient)
 	listingService := listing.NewService(storage)
 
 	var endpoints transport.Endpoints

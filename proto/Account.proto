@@ -13,10 +13,16 @@ service AccountService {
     rpc GetEmployee (GetEmployeeRequest) returns (GetEmployeeResponse);
 }
 
+message AuthData {
+    string Username = 1;
+    string Password = 2;
+}
+
 message CreateCompany {
-    string Name = 1;
-    CreateAddress Address = 2;
-    CreateContactInfo ContactInfo = 3;
+    AuthData AuthData = 1;
+    string Name = 2;
+    CreateAddress Address = 3;
+    CreateContactInfo ContactInfo = 4;
 }
 
 message Company {
@@ -56,8 +62,9 @@ message CreateContactInfo {
 }
 
 message CreateEmployee {
-    string Name = 1;
-    string CompanyID = 2;
+    AuthData AuthData = 1;
+    string Name = 2;
+    string CompanyID = 3;
 }
 
 message Employee {

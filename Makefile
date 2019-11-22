@@ -1,5 +1,4 @@
-
-compileAll: account apiGateway signature qr shipment
+compileAll: account apiGateway signature qr authentication shipment
 
 account:
 	cd service/account && make compile
@@ -16,3 +15,5 @@ shipment:
 signature:
 	cd service/signature && make compile
 
+authentication:
+	cd service/authentication && make compile
