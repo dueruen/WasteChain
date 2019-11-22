@@ -1,0 +1,38 @@
+syntax = "proto3";
+package pb;
+
+service BlockchainService {
+    rpc GetShipmentData (GetShipmentDataRequest) returns (GetShipmentDataResponse);
+    rpc Publish (PublishRequest) returns (PublishResponse);
+}
+
+enum BlockchainSubjectTypes {
+    Published = 0;
+    DataFound = 1;
+}
+
+message PublishedEvent {
+    string ShipmentID = 1;
+}
+
+message DataFoundEvent {
+    string ShipmentID = 1;
+    repeated bytes data = 2;
+}
+
+message GetShipmentDataRequest {
+    string ShipmentID = 1;
+}
+
+message GetShipmentDataResponse {
+    string Error = 1;
+}
+
+message PublishRequest {
+    string ShipmentID = 1;
+    bytes data = 2;
+}
+
+message PublishResponse {
+    string Error = 1;
+}

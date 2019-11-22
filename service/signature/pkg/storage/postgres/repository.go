@@ -18,6 +18,7 @@ type KeyData struct {
 type ProgressData struct {
 	ProgressID      string
 	CurrentHolderID string
+	ShipmentID      string
 	Signature       []byte
 	DataHash        []byte
 }
@@ -79,10 +80,11 @@ func (storage *Storage) GetPrivateKey(userID string) (encryptedPrivateKey []byte
 	return data.EncryptedPrivateKey, nil
 }
 
-func (storage *Storage) StoreDoubleSignProgress(id, currentHolderID string, signature, dataHash []byte) error {
+func (storage *Storage) StoreDoubleSignProgress(id, currentHolderID, shipmentID string, signature, dataHash []byte) error {
 	data := &ProgressData{
 		ProgressID:      id,
 		CurrentHolderID: currentHolderID,
+		ShipmentID:      shipmentID,
 		Signature:       signature,
 		DataHash:        dataHash,
 	}
@@ -90,8 +92,8 @@ func (storage *Storage) StoreDoubleSignProgress(id, currentHolderID string, sign
 	return nil
 }
 
-func (storage *Storage) GetStoredDoubleSignProgress(id string) (currentHolderID string, signature, dataHash []byte, err error) {
+func (storage *Storage) GetStoredDoubleSignProgress(id string) (currentHolderID, shipmentID string, signature, dataHash []byte, err error) {
 	var data ProgressData
 	storage.db.Where("progress_id = ?", id).First(&data)
-	return data.CurrentHolderID, data.Signature, data.DataHash, nil
+	return data.CurrentHolderID, data.ShipmentID, data.Signature, data.DataHash, nil
 }
