@@ -50,7 +50,6 @@ message StartDoubleSignRequest {
     string CurrentHolderPassword = 3;
     string ShipmentID = 4;
 }
-
 message StartDoubleSignResponse {
     string Error = 1;
 }
