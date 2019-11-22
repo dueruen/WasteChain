@@ -1,15 +1,16 @@
 package main
 
 import (
-	service "github.com/dueruen/WasteChain/service/iota/pkg"
-	sender "github.com/dueruen/WasteChain/service/iota/pkg/send"
+	"fmt"
+
+	"github.com/dueruen/WasteChain/service/blockchain/pkg/createAddress"
 )
 
 var endpoint = "https://nodes.devnet.thetangle.org"
 
 func main() {
-	//addr, seed, err := service.CreateAddress(endpoint)
-
+	info, err := createAddress.CreateAddress(endpoint)
+	fmt.Println("info: ", info, " err: ", err)
 	//addr, _, err := service.CreateAddress(endpoint)
 
 	// if err != nil {
@@ -17,7 +18,7 @@ func main() {
 	// }
 	//fmt.Println("addr: ", addr, " seed: ", seed)
 	//service.Send(addr, seed, endpoint)
-	sender.Send(service.TransportInfo{Address: addrSender, Seed: seedSender}, service.TransportInfo{Address: addrReceiver, Seed: seedReceiver}, endpoint)
+	//sender.Send(service.TransportInfo{Address: addrSender, Seed: seedSender}, service.TransportInfo{Address: addrReceiver, Seed: seedReceiver}, endpoint)
 
 	// messages, err := service.Receive(addrReceiver, endpoint)
 	// if err != nil {

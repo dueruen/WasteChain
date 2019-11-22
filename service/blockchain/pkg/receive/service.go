@@ -2,16 +2,49 @@ package receive
 
 import (
 	"bytes"
+	"errors"
 	"sort"
 	"strings"
 
-	compress "github.com/dueruen/WasteChain/service/iota/pkg/compress"
+	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
 	iotaAPI "github.com/iotaledger/iota.go/api"
 	"github.com/iotaledger/iota.go/converter"
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-func Receive(address, endpoint string) ([]string, error) {
+type Repository interface {
+	GetShipmentAddress(shipmentID string) (addr string, err error)
+}
+
+type Service interface {
+	GetShipmentData(shipmentID string) ([]string, error)
+}
+
+type service struct {
+	repo     Repository
+	endpoint string
+}
+
+func NewService(repo Repository, endpoint string) Service {
+	return &service{repo, endpoint}
+}
+
+func (srv *service) GetShipmentData(shipmentID string) ([]string, error) {
+	shipmentAddr, err := srv.repo.GetShipmentAddress(shipmentID)
+	if err != nil {
+		return nil, err
+	}
+	if shipmentAddr == "" {
+		return nil, errors.New("Shipment don't exists!!")
+	}
+	history, err := receive(shipmentAddr, srv.endpoint)
+	if err != nil {
+		return nil, err
+	}
+	return history, nil
+}
+
+func receive(address, endpoint string) ([]string, error) {
 	query := iotaAPI.FindTransactionsQuery{Addresses: trinary.Hashes{address}}
 
 	api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})

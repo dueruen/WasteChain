@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"os/exec"
 
-	srv "github.com/dueruen/WasteChain/service/iota/pkg"
 	"github.com/iotaledger/iota.go/address"
 	"github.com/iotaledger/iota.go/consts"
 	"github.com/iotaledger/iota.go/trinary"
 )
 
-func CreateAddress(endpoint string) (res *srv.TransportInfo, err error) {
+func New(endpoint string) (addr, seed string, err error) {
 	rawSeed, err := createSeed()
 	if err != nil {
-		return &srv.TransportInfo{}, err
+		return "", "", err
 	}
-	seed := trinary.Trytes(rawSeed)
+	seed = trinary.Trytes(rawSeed)
 
 	// compose a new API instance
 	//api, err := iotaAPI.ComposeAPI(iotaAPI.HTTPClientSettings{URI: endpoint})
@@ -25,11 +24,9 @@ func CreateAddress(endpoint string) (res *srv.TransportInfo, err error) {
 	//addresses, err := api.GetNewAddress(seed, iotaAPI.GetNewAddressOptions{})
 	address, err := address.GenerateAddress(seed, 1, consts.SecurityLevelMedium, true)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-
-	fmt.Println("\nYour new address: ", address)
-	return &srv.TransportInfo{Address: address, Seed: seed}, nil
+	return address, seed, nil
 }
 
 func createSeed() (string, error) {
