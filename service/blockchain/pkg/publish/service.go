@@ -2,7 +2,6 @@ package publish
 
 import (
 	"errors"
-	"fmt"
 
 	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
@@ -100,13 +99,9 @@ func sendToIOTA(shipmentAddr string, data []byte, endpoint string) error {
 	}
 
 	// Send the transaction to the tangle using given depth and minimum weight magnitude
-	bndl, err := httpAPI.SendTrytes(trytes, depth, mwm)
+	_, err = httpAPI.SendTrytes(trytes, depth, mwm)
 	if err != nil {
 		return errors.New("SendTrytes: " + err.Error())
 	}
-
-	fmt.Println("\nbroadcasted bundle with tail tx hash: ", bundle.TailTransactionHash(bndl))
-	// Check what the bundle looks like on thetangle!
-	fmt.Printf("https://devnet.thetangle.org/bundle/%s\n\n", bndl[0].Bundle)
 	return nil
 }
