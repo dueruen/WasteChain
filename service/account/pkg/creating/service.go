@@ -21,10 +21,11 @@ type Repository interface {
 type service struct {
 	createRepo Repository
 	authClient pb.AuthenticationServiceClient
+	signClient pb.SignatureServiceClient
 }
 
-func NewService(createRepo Repository, authClient pb.AuthenticationServiceClient) Service {
-	return &service{createRepo, authClient}
+func NewService(createRepo Repository, authClient pb.AuthenticationServiceClient, signClient pb.SignatureServiceClient) Service {
+	return &service{createRepo, authClient, signClient}
 }
 
 func (srv *service) CreateCompany(company *pb.CreateCompany) (*pb.Company, error) {
@@ -43,6 +44,11 @@ func (srv *service) CreateCompany(company *pb.CreateCompany) (*pb.Company, error
 	if res.Error != "" {
 		return nil, errors.New(res.Error)
 	}
+
+	srv.signClient.CreateKeys(context.Background(), &pb.CreateKeysRequest{
+		UserID:     id.String(),
+		Passphrase: company.AuthData.Password,
+	})
 
 	return srv.createRepo.CreateNewCompany(id.String(), company)
 }
@@ -63,6 +69,11 @@ func (srv *service) CreateEmployee(employee *pb.CreateEmployee) (*pb.Employee, e
 	if res.Error != "" {
 		return nil, errors.New(res.Error)
 	}
+
+	srv.signClient.CreateKeys(context.Background(), &pb.CreateKeysRequest{
+		UserID:     id.String(),
+		Passphrase: employee.AuthData.Password,
+	})
 
 	return srv.createRepo.CreateEmployee(id.String(), employee)
 }
