@@ -74,7 +74,7 @@ func Run() {
 
 	pb.RegisterSignatureServiceServer(grpcServer, signatureService)
 
-	fmt.Printf("Shipping service is listening on port %s...\n", port)
+	fmt.Printf("Signing service is listening on port %s...\n", port)
 
 	err = grpcServer.Serve(grpcListener)
 	fmt.Println("Serve() failed", err)
