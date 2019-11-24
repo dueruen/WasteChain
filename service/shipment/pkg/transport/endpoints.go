@@ -50,7 +50,7 @@ func makeProcessShipmentEndpoint(service processing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*pb.ProcessShipmentRequest)
 		service.ProcessShipment(req)
-		return &pb.TransferShipmentResponse{}, nil
+		return &pb.ProcessShipmentResponse{}, nil
 	}
 }
 

@@ -36,7 +36,9 @@ func NewService(processingRepo Repository, signClient pb.SignatureServiceClient)
 
 func (srv *service) ProcessShipment(processingRequest *pb.ProcessShipmentRequest) error {
 	historyItem, error := srv.processingRepo.ProcessShipment(processingRequest, time.Now().String())
-
+	if error != nil {
+		return error
+	}
 	dataEvent := mapHistoryItemToDataEvent(historyItem)
 	byteEvent := dataEventToByteArray(dataEvent)
 
@@ -46,7 +48,7 @@ func (srv *service) ProcessShipment(processingRequest *pb.ProcessShipmentRequest
 		Password:   processingRequest.Password,
 		ShipmentID: processingRequest.ID,
 	})
-	return error
+	return nil
 }
 
 func mapHistoryItemToDataEvent(historyItem *pb.HistoryItem) *dataEvent {

@@ -19,12 +19,14 @@ message Shipment {
 }
 
 message HistoryItem {
-    ShipmentEvent Event = 1;
-    string OwnerID = 2;
-    string ReceiverID = 3;
-    string TimeStamp = 4;
-    string Location = 5;
-    bool Validated = 6;
+    string ID =1;
+    ShipmentEvent Event = 2;
+    string OwnerID = 3;
+    string ReceiverID = 4;
+    string TimeStamp = 5;
+    string Location = 6;
+    bool Published = 7;
+    string ShipmentID = 8;
 }
 
 enum ShipmentEvent {

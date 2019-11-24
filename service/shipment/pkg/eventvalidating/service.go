@@ -5,7 +5,7 @@ type Service interface {
 }
 
 type Repository interface {
-	ValidateLatestHistoryEvent(shipmentID string) error
+	LatestHistoryEventIsPublished(shipmentID string) error
 }
 
 type service struct {
@@ -17,5 +17,5 @@ func NewService(validationRepo Repository) Service {
 }
 
 func (srv *service) ValidateLatestHistoryEvent(shipmentID string) error {
-	return srv.validationRepo.ValidateLatestHistoryEvent(shipmentID)
+	return srv.validationRepo.LatestHistoryEventIsPublished(shipmentID)
 }

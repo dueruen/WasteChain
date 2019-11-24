@@ -8,14 +8,6 @@ services:
       POSTGRES_DB: root
     ports:
       - 5432:5432
-  db_shipment:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: root
-      POSTGRES_USER: root
-      POSTGRES_DB: root
-    ports:
-      - 5433:5433
   nats:
     image: nats
     ports:

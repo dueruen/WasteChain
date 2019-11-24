@@ -36,6 +36,9 @@ func NewService(transferingRepo Repository, signClient pb.SignatureServiceClient
 
 func (srv *service) TransferShipment(transferRequest *pb.TransferShipmentRequest) error {
 	historyItem, error := srv.transferingRepo.TransferShipment(transferRequest, time.Now().String())
+	if error != nil {
+		return error
+	}
 	dataEvent := mapHistoryItemToDataEvent(historyItem)
 	byteEvent := dataEventToByteArray(dataEvent)
 
@@ -45,7 +48,7 @@ func (srv *service) TransferShipment(transferRequest *pb.TransferShipmentRequest
 		CurrentHolderPassword: transferRequest.Password,
 		ShipmentID:            transferRequest.ShipmentID,
 	})
-	return error
+	return nil
 }
 
 func mapHistoryItemToDataEvent(historyItem *pb.HistoryItem) *dataEvent {
