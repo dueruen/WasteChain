@@ -32,6 +32,17 @@ func Run() {
 		fmt.Printf("Storage err: %v\n", err)
 	}
 
+	//Connect to Signature Service
+	signConn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Signature service %v", err)
+	} else {
+		fmt.Printf("Connection to Signature service made\n")
+	}
+	defer signConn.Close()
+
+	signClient := pb.NewSignatureServiceClient(signConn)
+
 	//Connect to Authentication Service
 	authConn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
 	if err != nil {
@@ -43,7 +54,7 @@ func Run() {
 
 	authClient := pb.NewAuthenticationServiceClient(authConn)
 
-	creatingService := creating.NewService(storage, authClient)
+	creatingService := creating.NewService(storage, authClient, signClient)
 	listingService := listing.NewService(storage)
 
 	var endpoints transport.Endpoints
