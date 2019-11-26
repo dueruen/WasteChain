@@ -18,6 +18,7 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	//Connect to Account service
 	accountConn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to account service %v", err)
@@ -26,8 +27,54 @@ func main() {
 	accountService := pb.NewAccountServiceClient(accountConn)
 	fmt.Printf("Connection to account service made\n")
 
+	//Connect to QR service
+	qrConn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to QR service %v", err)
+	}
+	defer qrConn.Close()
+	qrService := pb.NewQRServiceClient(qrConn)
+	fmt.Printf("Connection to QR service made\n")
+
+	//Connect to Signature service
+	signatureConn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Signature service %v", err)
+	}
+	defer signatureConn.Close()
+	signatureService := pb.NewSignatureServiceClient(signatureConn)
+	fmt.Printf("Connection to Signature service made\n")
+
+	//Connect to Authentication service
+	authConn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Authentication service %v", err)
+	}
+	defer authConn.Close()
+	authService := pb.NewAuthenticationServiceClient(authConn)
+	fmt.Printf("Connection to Authentication service made\n")
+
+	//Connect to Shipment service
+	shipmentConn, err := grpc.Dial("localhost:50055", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to shipment service %v", err)
+	}
+	defer shipmentConn.Close()
+	shipmentService := pb.NewShipmentServiceClient(shipmentConn)
+	fmt.Printf("Connection to shipment service made\n")
+
+	//Connect to Blockchain service
+	blockchainConn, err := grpc.Dial("localhost:50056", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to blockchain service %v", err)
+	}
+	defer blockchainConn.Close()
+	blockchainService := pb.NewBlockchainServiceClient(blockchainConn)
+	fmt.Printf("Connection to Blockchain service made\n")
+
 	resolver := graphql.Resolver{
 		AccountClient: accountService,
+		//Insert resolvers for other connections as they are implemented
 	}
 
 	port := os.Getenv("PORT")
