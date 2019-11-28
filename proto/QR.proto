@@ -17,6 +17,7 @@ message CreateQRRequest {
 
 message CreateQRResponse {
     string Error = 1;
+    bytes QRCode = 2;
 }
 
 message QRCreatedEvent {
