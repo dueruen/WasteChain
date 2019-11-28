@@ -63,23 +63,12 @@ func main() {
 	shipmentService := pb.NewShipmentServiceClient(shipmentConn)
 	fmt.Printf("Connection to shipment service made\n")
 
-	//Connect to Blockchain service
-	blockchainConn, err := grpc.Dial("localhost:50056", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Could not connect to blockchain service %v", err)
-	}
-	defer blockchainConn.Close()
-	blockchainService := pb.NewBlockchainServiceClient(blockchainConn)
-	fmt.Printf("Connection to Blockchain service made\n")
-
 	resolver := graphql.Resolver{
-        AccountClient: accountService,
-        QRClient: qrService,
-        SignatureClient: signatureService,
-        AuthenticationClient: authService,
-        ShipmentClient: shipmentService,
-        BlockchainClient: blockchainService,
-		//Insert resolvers for other connections as they are implemented
+		AccountClient:        accountService,
+		QRClient:             qrService,
+		SignatureClient:      signatureService,
+		AuthenticationClient: authService,
+		ShipmentClient:       shipmentService,
 	}
 
 	port := os.Getenv("PORT")

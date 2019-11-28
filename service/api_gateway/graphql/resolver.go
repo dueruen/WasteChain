@@ -12,7 +12,6 @@ type Resolver struct {
 	SignatureClient      pb.SignatureServiceClient
 	AuthenticationClient pb.AuthenticationServiceClient
 	ShipmentClient       pb.ShipmentServiceClient
-	BlockchainClient     pb.BlockchainServiceClient
 }
 
 func (r *Resolver) Mutation() MutationResolver {

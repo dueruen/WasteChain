@@ -5,6 +5,9 @@ type Query {
     #Employee
     listAllEmployeesInCompany(companyID: ID!): [Employee!]!
     getEmployee(employeeID: ID!): Employee!
+    #Shipment
+    listAllShipments: [Shipment!]!
+    getShipmentDetails(shipmentID: ID!): Shipment!
 }
 
 type Mutation {
@@ -12,6 +15,18 @@ type Mutation {
     createCompany(company: CreateCompany!): Company!
     #Employee
     createEmployee(employee: CreateEmployee!): Employee!
+    #QR
+    createQRCode(dataString: String!):[Int!]!
+    #SignatureService
+    continueDoubleSign(request: ContinueDoubleSignRequest)
+    #Authentication
+    createCredentials(request: CreateCredentialsRequest)
+    login(request: LoginRequest): String! #Token
+    validate(token: String): Boolean
+    #Shipment
+    createShipment(request: CreateShipmentRequest): ID!
+    transferShipment(request: TransferShipmentRequest)
+    processShipment(request: ProcessShipmentRequest)
 }
 
 input CreateCompany {
@@ -64,4 +79,73 @@ type Employee {
     id: ID!
     name: String!
     companyID: String!
+}
+
+input ContinueDoubleSignRequest {
+    continueID: String!
+    newHolderID: String!
+    newHolderPassword: String!
+}
+
+input CreateCredentialsRequest {
+    credentials: Credentials!
+}
+
+type Credentials {
+    userID: String!
+    username: String!
+    password: String!
+}
+
+input LoginRequest {
+    username: String!
+    password: String!
+}
+
+input CreateShipmentRequest {
+    wasteType: String!
+    currentHolderID: String!
+    location: String!
+    password: String!
+}
+
+type Shipment {
+    id: ID!
+    producingCompanyID: String!
+    wasteType: String!
+    currentHolderID: String!
+    history: [HistoryItem]
+}
+
+type HistoryItem {
+    id: ID!
+    event: ShipmentEvent!
+    ownerID: String!
+    receiverID: String!
+    timestamp: String!
+    location: String!
+    published: Boolean!
+    shipmentID: String!
+
+}
+
+enum ShipmentEvent {
+    CREATED
+    TRANSFERED
+    PROCESSED
+}
+
+input TransferShipmentRequest {
+    shipmentID: String!
+    ownerID: String!
+    receiverID: String!
+    location: String!
+    password: String!
+}
+
+input ProcessShipmentRequest {
+    shipmentID: String!
+    ownerID: String!
+    location: String!
+    password: String!
 }
