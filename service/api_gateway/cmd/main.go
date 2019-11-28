@@ -73,7 +73,12 @@ func main() {
 	fmt.Printf("Connection to Blockchain service made\n")
 
 	resolver := graphql.Resolver{
-		AccountClient: accountService,
+        AccountClient: accountService,
+        QRClient: qrService,
+        SignatureClient: signatureService,
+        AuthenticationClient: authService,
+        ShipmentClient: shipmentService,
+        BlockchainClient: blockchainService,
 		//Insert resolvers for other connections as they are implemented
 	}
 
