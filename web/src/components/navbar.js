@@ -1,9 +1,8 @@
 import React, { Fragment } from 'react';
-// import styled from '@emotion/core';
 import styled from '@emotion/styled'
 
 
-export default function PageContainer(props) {
+export default function Navbar(props) {
     return (
         <Fragment>
             <nav>
@@ -15,10 +14,10 @@ export default function PageContainer(props) {
                     </LeftSide>
                     <RightSide>
                         <LinkWrapper>
-                            <p>Link</p>
+                            <NavLink href="#">Link</NavLink>
                         </LinkWrapper>
                         <LinkWrapper>
-                            <p>Link</p>
+                            <NavLink href="/login">Login</NavLink>
                         </LinkWrapper>
                     </RightSide>
                 </NavWrapper>
@@ -30,11 +29,14 @@ export default function PageContainer(props) {
 const NavWrapper = styled.div`
     display: flex;
     justify-content: space-between;
-    padding: 38px;
+    padding: 5px 10px 5px 20px;
     background-color: red;
 `
 
 const LeftSide = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
 `
 
@@ -48,11 +50,13 @@ const RightSide = styled.div`
 
 const LinkWrapper = styled.div`
     height: 22px;
+    padding: 10px;
     border-bottom: 1px solid transparent;
     transition: border-bottom 0.5s;
+    text-align: center;
 `
 const NavLink = styled.a`
-    color: #8a8a8a;
+    color: black;
     text-decoration: none;
     transition: color 0.5s;
 `

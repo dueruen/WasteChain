@@ -14,7 +14,13 @@ type Mutation {
     createEmployee(employee: CreateEmployee!): Employee!
 }
 
+input AuthData {
+    userName: String!
+    password: String!
+}
+
 input CreateCompany {
+    authData: AuthData!
     name: String!
     address: CreateAddress!
     contactinfo: CreateContactInfo!

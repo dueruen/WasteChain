@@ -10,7 +10,7 @@ import Pages from './pages';
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-  uri: 'http://localhost:8081'
+  uri: 'http://localhost:8081/query'
 });
 
 const client = new ApolloClient({
