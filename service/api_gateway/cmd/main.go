@@ -27,15 +27,6 @@ func main() {
 	accountService := pb.NewAccountServiceClient(accountConn)
 	fmt.Printf("Connection to account service made\n")
 
-	//Connect to QR service
-	qrConn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Could not connect to QR service %v", err)
-	}
-	defer qrConn.Close()
-	qrService := pb.NewQRServiceClient(qrConn)
-	fmt.Printf("Connection to QR service made\n")
-
 	//Connect to Signature service
 	signatureConn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
 	if err != nil {

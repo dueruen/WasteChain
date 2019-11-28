@@ -15,18 +15,15 @@ type Mutation {
     createCompany(company: CreateCompany!): Company!
     #Employee
     createEmployee(employee: CreateEmployee!): Employee!
-    #QR
-    createQRCode(dataString: String!):[Int!]!
     #SignatureService
-    continueDoubleSign(request: ContinueDoubleSignRequest)
+    continueDoubleSign(request: ContinueDoubleSignRequest!): String!
     #Authentication
-    createCredentials(request: CreateCredentialsRequest)
-    login(request: LoginRequest): String! #Token
-    validate(token: String): Boolean
+    login(request: LoginRequest!): String! #Token
+    validate(token: String!): Boolean!
     #Shipment
-    createShipment(request: CreateShipmentRequest): ID!
-    transferShipment(request: TransferShipmentRequest)
-    processShipment(request: ProcessShipmentRequest)
+    createShipment(request: CreateShipmentRequest!): ID!
+    transferShipment(request: TransferShipmentRequest!): String!
+    processShipment(request: ProcessShipmentRequest!): String!
 }
 
 input CreateCompany {
@@ -91,7 +88,7 @@ input CreateCredentialsRequest {
     credentials: Credentials!
 }
 
-type Credentials {
+input Credentials {
     userID: String!
     username: String!
     password: String!
@@ -117,9 +114,15 @@ type Shipment {
     history: [HistoryItem]
 }
 
+# enum ShipmentEvent {
+#     CREATED
+#     TRANSFERED
+#     PROCESSED
+# }
+
 type HistoryItem {
     id: ID!
-    event: ShipmentEvent!
+    event: Int!
     ownerID: String!
     receiverID: String!
     timestamp: String!
@@ -127,12 +130,6 @@ type HistoryItem {
     published: Boolean!
     shipmentID: String!
 
-}
-
-enum ShipmentEvent {
-    CREATED
-    TRANSFERED
-    PROCESSED
 }
 
 input TransferShipmentRequest {
