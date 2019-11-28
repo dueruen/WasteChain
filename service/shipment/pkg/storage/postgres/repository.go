@@ -119,7 +119,7 @@ func getAllShipmentData(db *gorm.DB, shipment *pb.Shipment) *pb.Shipment {
 
 func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentRequest, timeStamp string) (*pb.HistoryItem, error) {
 
-	if storage.shipmentHasBeenProcessed(processRequest.ID) {
+	if storage.shipmentHasBeenProcessed(processRequest.ShipmentID) {
 		return nil, errors.New("Shipment has already been processed, and can therefore not be processed again")
 	}
 
@@ -134,7 +134,7 @@ func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentReques
 	processEventID, _ := uuid.NewV4()
 
 	processEvent.ID = processEventID.String()
-	processEvent.ShipmentID = processRequest.ID
+	processEvent.ShipmentID = processRequest.ShipmentID
 
 	storage.db.Create(processEvent)
 	return processEvent, nil
@@ -176,8 +176,6 @@ func (storage *Storage) LatestHistoryEventIsPublished(shipmentID string) error {
 func (storage *Storage) shipmentHasBeenProcessed(shipmentID string) bool {
 	var hi pb.HistoryItem
 	storage.db.Order("time_stamp desc").First(&hi)
-
-	fmt.Println(hi.ID)
 
 	if hi.Event == 2 {
 		return true
