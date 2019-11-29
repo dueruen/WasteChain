@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"errors"
-	"fmt"
 
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
 	"github.com/gofrs/uuid"
@@ -51,10 +50,11 @@ func createSchema(db *gorm.DB) error {
 	return nil
 }
 
-func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string) (string, *pb.HistoryItem, error) {
+func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string, companyID string) (string, *pb.HistoryItem, error) {
 	newShipment := &pb.Shipment{
-		CurrentHolderID: shipment.CurrentHolderID,
-		WasteType:       shipment.WasteType,
+		CurrentHolderID:    shipment.CurrentHolderID,
+		ProducingCompanyID: companyID,
+		WasteType:          shipment.WasteType,
 		History: []*pb.HistoryItem{
 			&pb.HistoryItem{
 				Event:      0,
@@ -97,13 +97,11 @@ func (storage *Storage) ListAllShipments() (error, []*pb.Shipment) {
 	}
 
 	for _, shipment := range shipments {
-		fmt.Println(shipment.History)
 		if len(shipment.History) == 0 {
 			continue
 		}
 		shipment = getAllShipmentData(storage.db, shipment)
 		shipmentsToBeReturned = append(shipmentsToBeReturned, shipment)
-		fmt.Println(len(shipmentsToBeReturned))
 	}
 
 	return nil, shipmentsToBeReturned
@@ -168,6 +166,13 @@ func (storage *Storage) LatestHistoryEventIsPublished(shipmentID string) error {
 	var hi pb.HistoryItem
 	storage.db.Where("shipment_id = ? AND published = false", shipmentID).Last(&hi)
 	hi.Published = true
+
+	if hi.Event == 1 {
+		var shipment pb.Shipment
+		storage.db.Where("id = ?", shipmentID).First(&shipment)
+		shipment.CurrentHolderID = hi.ReceiverID
+		storage.db.Save(shipment)
+	}
 
 	storage.db.Save(hi)
 	return nil
