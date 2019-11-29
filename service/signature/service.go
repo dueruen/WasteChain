@@ -46,11 +46,22 @@ func Run() {
 
 	qrClient := pb.NewQRServiceClient(cc)
 
+	//Connect to Blockchain Service
+	ccBlock, err := grpc.Dial("localhost:50056", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Blockchain service %v", err)
+	} else {
+		fmt.Printf("Connection to Blockchain service made\n")
+	}
+	defer ccBlock.Close()
+
+	blockClient := pb.NewBlockchainServiceClient(ccBlock)
+
 	//Create Key Service
 	keySrv := key.NewService(storage)
 
 	//Create Sign Service
-	signSrv := sign.NewService(storage, keySrv, pubEventHandler, qrClient)
+	signSrv := sign.NewService(storage, keySrv, pubEventHandler, qrClient, blockClient)
 
 	//Connect Sub to NATS
 	errSub := sub.StartListening("localhost:4222", signSrv)

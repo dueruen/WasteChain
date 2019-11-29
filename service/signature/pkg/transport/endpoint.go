@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	"errors"
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 	"github.com/dueruen/WasteChain/service/signature/pkg/key"
@@ -13,8 +14,7 @@ type Endpoints struct {
 	SingleSign         endpoint.Endpoint
 	StartDoubleSign    endpoint.Endpoint
 	ContinueDoubleSign endpoint.Endpoint
-	SingleVerify       endpoint.Endpoint
-	DoubleVerify       endpoint.Endpoint
+	VerifyHistory      endpoint.Endpoint
 	CreateKeys         endpoint.Endpoint
 }
 
@@ -23,8 +23,7 @@ func MakeEndpoints(keySrv key.Service, signSrv sign.Service) Endpoints {
 		SingleSign:         makeSingleSignEndpoint(signSrv),
 		StartDoubleSign:    makeStartDoubleSignEndpoint(signSrv),
 		ContinueDoubleSign: makeContinueDoubleSignEndpoint(signSrv),
-		SingleVerify:       makeSingleVerifyEndpoint(signSrv),
-		DoubleVerify:       makeDoubleVerifyEndpoint(signSrv),
+		VerifyHistory:      makeVerifyHistoryEndpoint(signSrv),
 		CreateKeys:         makeCreateKeysEndpoint(keySrv),
 	}
 }
@@ -68,31 +67,17 @@ func makeContinueDoubleSignEndpoint(srv sign.Service) endpoint.Endpoint {
 	}
 }
 
-func makeSingleVerifyEndpoint(srv sign.Service) endpoint.Endpoint {
+func makeVerifyHistoryEndpoint(srv sign.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*pb.SingleVerifyRequest)
-		ok, err := srv.SingleVerify(req)
-		if err != nil {
-			return &pb.SingleVerifyResponse{
-				Ok:    ok,
-				Error: err.Error(),
-			}, err
+		req := request.(*pb.VerifyHistoryRequest)
+		res := srv.VerifyHistory(req)
+		if res.Error != "" {
+			return &pb.VerifyHistoryResponse{
+				Error: res.Error,
+				Ok:    false,
+			}, errors.New(res.Error)
 		}
-		return &pb.SingleVerifyResponse{Ok: ok}, nil
-	}
-}
-
-func makeDoubleVerifyEndpoint(srv sign.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*pb.DoubleVerifyRequest)
-		ok, err := srv.DoubleVerify(req)
-		if err != nil {
-			return &pb.DoubleVerifyResponse{
-				Ok:    ok,
-				Error: err.Error(),
-			}, err
-		}
-		return &pb.DoubleVerifyResponse{Ok: ok}, nil
+		return res, nil
 	}
 }
 
