@@ -15,10 +15,17 @@ import (
 	"google.golang.org/grpc"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	accountConn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8081"
+	}
+	acco := os.Getenv("ACCO")
+	if len(acco) == 0 {
+		acco = "localhost:50051"
+	}
+
+	accountConn, err := grpc.Dial(acco, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to account service %v", err)
 	}
@@ -28,11 +35,6 @@ func main() {
 
 	resolver := graphql.Resolver{
 		AccountClient: accountService,
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
 	}
 
 	http.Handle("/", handler.Playground("GraphQL Playground", "/query"))
@@ -45,5 +47,5 @@ func main() {
 			return errors.New("Something went wrong!!!!")
 		}),
 	))
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe(port, nil))
 }
