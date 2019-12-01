@@ -2,6 +2,7 @@ package publish
 
 import (
 	"errors"
+	"fmt"
 
 	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
@@ -44,21 +45,25 @@ func (srv *service) Publish(shipmentID string, data []byte) error {
 	if err != nil && shipmentAddr == "" {
 		addr, shipmentSeed, err := createAddress.New(srv.endpoint)
 		if err != nil {
+			fmt.Println("ERR 1: ", err)
 			return err
 		}
 		shipmentAddr = addr
 		srv.repo.SaveShipmentInfo(shipmentID, shipmentAddr, shipmentSeed)
 	} else if err != nil {
+		fmt.Println("ERR 2: ", err)
 		return err
 	}
 
 	err = sendToIOTA(shipmentAddr, data, srv.endpoint)
 	if err != nil {
+		fmt.Println("ERR 3: ", err)
 		return err
 	}
 	srv.eventHandler.PublishDone(&pb.PublishedEvent{
 		ShipmentID: shipmentID,
 	})
+	fmt.Println("SEND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!____________________!!!!!!!!!!!!!!!!!")
 	return nil
 }
 

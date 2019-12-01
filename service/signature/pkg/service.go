@@ -28,6 +28,10 @@ func Run() {
 	if dbString == "" {
 		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
 	}
+	block := os.Getenv("BLOC")
+	if block == "" {
+		block = "blockchain:50056"
+	}
 	qr := os.Getenv("QR")
 	if qr == "" {
 		qr = "localhost:50052"
@@ -63,7 +67,7 @@ func Run() {
 	qrClient := pb.NewQRServiceClient(cc)
 
 	//Connect to Blockchain Service
-	ccBlock, err := grpc.Dial("localhost:50056", grpc.WithInsecure())
+	ccBlock, err := grpc.Dial(block, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Blockchain service %v", err)
 	} else {

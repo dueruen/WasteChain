@@ -43,6 +43,10 @@ func Run() {
 	if len(sign) == 0 {
 		sign = "signature:50053"
 	}
+	acco := os.Getenv("ACCO")
+	if len(acco) == 0 {
+		acco = "account:50051"
+	}
 	dbString := os.Getenv("DB_STRING")
 	if dbString == "" {
 		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
@@ -62,7 +66,12 @@ func Run() {
 	validationService := eventvalidating.NewService(storage)
 
 	//Connect to Signature Service
+	//time.Sleep(10 * time.Second)
 	cc, err := grpc.Dial(sign, grpc.WithInsecure())
+	fmt.Println("!!!!!!!!!!!!!!!!!!!!!!----------------!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	fmt.Println("cc: ", cc)
+	fmt.Println("err: ", err)
+	fmt.Println("!!!!!!!!!!!!!!!!!!!!!!----------------!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 	if err != nil {
 		log.Fatalf("Could not connect to Signature service %v", err)
 	} else {
@@ -73,7 +82,7 @@ func Run() {
 	signClient := pb.NewSignatureServiceClient(cc)
 
 	//Connect to Account Service
-	ac, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	ac, err := grpc.Dial(acco, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Account service %v", err)
 	} else {
@@ -91,7 +100,7 @@ func Run() {
 	fmt.Printf("Sub connection to NATS service made\n")
 
 	creatingService := creating.NewService(storage, signClient, accountClient)
-	listingService := listing.NewService(storage)
+	listingService := listing.NewService(storage, signClient)
 	transferingService := transfering.NewService(storage, signClient)
 	processingService := processing.NewService(storage, signClient)
 

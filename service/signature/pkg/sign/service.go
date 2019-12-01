@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 
@@ -115,6 +116,7 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 		return err
 	}
 
+	fmt.Println("SIGNATURE########: ", signature)
 	doneEvent := &pb.DoneEvent{
 		EventType:              pb.DoneEventType_SINGLE_SIGN_DONE,
 		CurrentHolderSignature: signature,
@@ -123,6 +125,11 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 
 	data, _ := json.Marshal(doneEvent)
 	doneEvent.Data = data
+	fmt.Println("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤")
+	itemData := pb.DoneEvent{}
+	json.Unmarshal(data, &itemData)
+	fmt.Println("DATA string: ", string(data))
+	fmt.Println("dATAA unmarshal: ", itemData)
 
 	//Public event SingleSignDone
 	service.eventHandler.SingleSignDone(doneEvent)
@@ -134,28 +141,42 @@ func (service *service) VerifyHistory(req *pb.VerifyHistoryRequest) *pb.VerifyHi
 	res, err := service.blockClient.GetShipmentData(context.Background(), &pb.GetShipmentDataRequest{
 		ShipmentID: req.ShipmentID,
 	})
+
 	if err != nil {
+		fmt.Println("SIGN GetShipmentData ERR: ", err)
 		return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
 	}
+	if len(res.History) == 0 {
+		fmt.Println("SIGN NO HISTORY on IOTA")
+		return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("No history").Error()}
+	}
 
-	for i, item := range req.History {
+	for i, item := range res.History {
 		itemData := pb.DoneEvent{}
-		json.Unmarshal(item.Data, &res)
-		if (i == 0 && item.CurrentHolderID != "" && item.NewHolderID == "") || (i != 0 && item.CurrentHolderID != "" && item.NewHolderID == "") {
-			err := service.singleVerify(item.CurrentHolderID, res.History[i], item.Data)
+		json.Unmarshal(item, &itemData)
+
+		reqItem := req.History[i]
+		fmt.Println("&&&&&&&&&&&&&&&&&&& DATA: ", string(reqItem.Data))
+
+		if (i == 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") || (i != 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") {
+			err := service.singleVerify(reqItem.CurrentHolderID, itemData.CurrentHolderSignature, reqItem.Data)
 			if err != nil {
+				fmt.Println("SIGN singleVerify ERR: ", err)
 				return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
 			}
-		} else if i != 0 && item.CurrentHolderID != "" && item.NewHolderID != "" {
-			err := service.doubleVerify(item.CurrentHolderID, item.NewHolderID, item.Data, itemData.CurrentHolderSignature, itemData.NewHolderSignature)
+		} else if i != 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID != "" {
+			err := service.doubleVerify(reqItem.CurrentHolderID, reqItem.NewHolderID, reqItem.Data, itemData.CurrentHolderSignature, itemData.NewHolderSignature)
 			if err != nil {
+				fmt.Println("SIGN doubleVerify ERR: ", err)
 				return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
 			}
 		} else {
+			fmt.Println("SIGN Error verifying history")
 			return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("Error verifying history").Error()}
 		}
 	}
 
+	fmt.Println("VERIFY DATA OK!!!!")
 	return &pb.VerifyHistoryResponse{Ok: true}
 }
 
@@ -239,6 +260,7 @@ func (service *service) verify(userID string, dataHash, signature []byte) (bool,
 	//Get public key
 	publicKey, err := service.keyService.GetPublicKey(userID)
 	if err != nil {
+		fmt.Println("GetPublicKey ERR: ", err)
 		return false, err
 	}
 
@@ -252,6 +274,7 @@ func (service *service) verify(userID string, dataHash, signature []byte) (bool,
 		&opts,
 	)
 	if err != nil {
+		fmt.Println("VerifyPSS Err: ", err)
 		return false, err
 	}
 	return true, nil

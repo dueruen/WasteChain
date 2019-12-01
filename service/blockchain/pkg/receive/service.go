@@ -3,8 +3,9 @@ package receive
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"regexp"
 	"sort"
-	"strings"
 
 	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
 	iotaAPI "github.com/iotaledger/iota.go/api"
@@ -32,13 +33,16 @@ func NewService(repo Repository, endpoint string) Service {
 func (srv *service) GetShipmentData(shipmentID string) (error, [][]byte) {
 	shipmentAddr, err := srv.repo.GetShipmentAddress(shipmentID)
 	if err != nil {
+		fmt.Println("BLOCK GetShipmentAddress err: ", err)
 		return err, nil
 	}
 	if shipmentAddr == "" {
+		fmt.Println("BLOCK Shipment don't exists!!")
 		return errors.New("Shipment don't exists!!"), nil
 	}
 	history, err := receive(shipmentAddr, srv.endpoint)
 	if err != nil {
+		fmt.Println("BLOCK receive err: ", err)
 		return err, nil
 	}
 
@@ -73,20 +77,25 @@ func receive(address, endpoint string) ([][]byte, error) {
 		buffers = append(buffers, bytes.Buffer{})
 		buffers[i].WriteString(tx.SignatureMessageFragment)
 	}
-
+	fmt.Println("BLOCK BUFFER SIZE: ", len(buffers))
 	messages := make([][]byte, 0)
 	for _, buf := range buffers {
-		suf := strings.Replace(buf.String(), "9", "", -1)
+		r := regexp.MustCompile("\\d{2,}")
+		suf := r.ReplaceAllString(buf.String(), "")
+		fmt.Println("TRYTES: ", suf)
 		msg, err := converter.TrytesToASCII(suf)
 		if err != nil {
+			fmt.Println("BLOCK TrytesToASCII err: ", err)
 			return nil, errors.New("TrytesToASCII: " + err.Error())
 		}
 		decompressData, err := compress.Decompress(msg)
 		if err != nil {
+			fmt.Println("BLOCK Decompress err: ", err)
 			return nil, errors.New("Decompress: " + err.Error())
 		}
-
+		fmt.Println("DEDATA: ", string(decompressData))
 		messages = append(messages, decompressData)
 	}
+	fmt.Println("BLOCK MESSAGE SIZE: ", len(messages))
 	return messages, nil
 }
