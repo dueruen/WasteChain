@@ -24,6 +24,7 @@ message DoneEvent {
     DoneEventType EventType = 1;
     bytes CurrentHolderSignature = 2;
     bytes NewHolderSignature = 3;
+    string ShipmentID = 4;
 }
 
 message DoubleSignNeededEvent {
@@ -36,6 +37,7 @@ message SingleSignRequest {
     bytes Data = 1;
     string UserID = 2;
     string Password = 3;
+    string ShipmentID = 4;
 }
 
 message SingleSignResponse {
@@ -46,8 +48,8 @@ message StartDoubleSignRequest {
     bytes Data = 1;
     string CurrentHolderID = 2;
     string CurrentHolderPassword = 3;
+    string ShipmentID = 4;
 }
-
 message StartDoubleSignResponse {
     string Error = 1;
 }

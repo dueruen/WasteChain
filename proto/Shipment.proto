@@ -1,0 +1,92 @@
+syntax = "proto3";
+package pb;
+
+service ShipmentService {
+    rpc CreateShipment(CreateShipmentRequest) returns (CreateShipmentResponse);
+    rpc TransferShipment(TransferShipmentRequest) returns (TransferShipmentResponse);
+    rpc ProcessShipment(ProcessShipmentRequest) returns (ProcessShipmentResponse);
+    rpc GetShipmentDetails(GetShipmentDetailsRequest) returns (GetShipmentDetailsResponse);
+    rpc ListAllShipments(ListAllShipmentsRequest) returns (ListAllShipmentsResponse);
+}
+
+
+message Shipment {
+    string ID = 1;
+    string ProducingCompanyID = 2;
+    string WasteType = 3;
+    repeated HistoryItem History =4;
+    string CurrentHolderID = 5;
+}
+
+message HistoryItem {
+    string ID =1;
+    ShipmentEvent Event = 2;
+    string OwnerID = 3;
+    string ReceiverID = 4;
+    string TimeStamp = 5;
+    string Location = 6;
+    bool Published = 7;
+    string ShipmentID = 8;
+}
+
+enum ShipmentEvent {
+    CREATED = 0;
+    TRANSFERED = 1;
+    PROCESSED = 2;
+}
+
+message CreateShipmentRequest {
+    string WasteType = 1;
+    string CurrentHolderID = 2;
+    string Location = 3;
+    string Password = 4;
+
+}
+
+message CreateShipmentResponse {
+    string error = 1;
+    string ID = 2;
+}
+
+message TransferShipmentRequest {
+    string ShipmentID = 1;
+    string OwnerID = 2;
+    string ReceiverID = 3;
+    string Location = 4;
+    string Password = 5;
+}
+
+message TransferShipmentResponse {
+    string error = 1;
+
+}
+
+message ProcessShipmentRequest {
+    string ShipmentID = 1;
+    string OwnerID = 2;
+    string Location = 3;
+    string Password = 4;
+}
+
+message ProcessShipmentResponse {
+    string error = 1;
+
+}
+
+message GetShipmentDetailsRequest {
+    string ID = 1;
+}
+
+message GetShipmentDetailsResponse {
+    Shipment shipment = 1;
+    string error =2;
+}
+
+message ListAllShipmentsRequest {
+
+}
+
+message ListAllShipmentsResponse {
+    string error = 1;
+    repeated Shipment shipmentList = 2;
+}
