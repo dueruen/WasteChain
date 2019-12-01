@@ -41,7 +41,7 @@ func Run() {
 	}
 	sign := os.Getenv("SIGN")
 	if len(sign) == 0 {
-		sign = "localhost:50053"
+		sign = "signature:50053"
 	}
 	dbString := os.Getenv("DB_STRING")
 	if dbString == "" {
@@ -49,7 +49,7 @@ func Run() {
 	}
 	nats := os.Getenv("NATS")
 	if len(nats) == 0 {
-		nats = "localhost:4222"
+		nats = "nats:4222"
 	}
 
 	storage, err := postgres.NewStorage(dbString)
