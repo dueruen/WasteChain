@@ -3,6 +3,7 @@
 !/**/
 !*.*
 !Makefile
+!Dockerfile
 
 **/secret.go
 **/gen

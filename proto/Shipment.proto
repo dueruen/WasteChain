@@ -62,7 +62,7 @@ message TransferShipmentResponse {
 }
 
 message ProcessShipmentRequest {
-    string ID = 1;
+    string ShipmentID = 1;
     string OwnerID = 2;
     string Location = 3;
     string Password = 4;

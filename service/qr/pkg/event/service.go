@@ -1,7 +1,9 @@
 package event
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	pb "github.com/dueruen/WasteChain/service/qr/gen/proto"
 	"github.com/nats-io/go-nats"
@@ -27,9 +29,18 @@ func (handler *eventHandler) QRCreated(event *pb.QRCreatedEvent) {
 }
 
 func connectToNats(url string) (encodedConn *nats.EncodedConn, err error) {
-	conn, err := nats.Connect(url)
-	if err != nil {
-		return
+	i := 5
+	for i > 0 {
+		conn, err := nats.Connect(url)
+		if err != nil {
+			fmt.Println("Can't connect to nats, sleeping for 2 sec, err: ", err)
+			time.Sleep(2 * time.Second)
+			i--
+			continue
+		} else {
+			fmt.Println("Connected to storanatsge")
+			return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+		}
 	}
-	return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+	panic("Not connected to storage")
 }

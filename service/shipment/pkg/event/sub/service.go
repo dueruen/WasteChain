@@ -1,6 +1,9 @@
 package sub
 
 import (
+	"fmt"
+	"time"
+
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/eventvalidating"
 	"github.com/nats-io/go-nats"
@@ -12,11 +15,20 @@ type eventHandler struct {
 }
 
 func connectToNats(url string) (encodedConn *nats.EncodedConn, err error) {
-	conn, err := nats.Connect(url)
-	if err != nil {
-		return
+	i := 5
+	for i > 0 {
+		conn, err := nats.Connect(url)
+		if err != nil {
+			fmt.Println("Can't connect to nats, sleeping for 2 sec, err: ", err)
+			time.Sleep(2 * time.Second)
+			i--
+			continue
+		} else {
+			fmt.Println("Connected to storanatsge")
+			return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+		}
 	}
-	return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+	panic("Not connected to storage")
 }
 
 func StartListening(url string, validationSrv eventvalidating.Service) error {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	"github.com/dueruen/WasteChain/service/shipment/pkg/creating"
 	"github.com/dueruen/WasteChain/service/shipment/pkg/event/sub"
@@ -33,10 +34,25 @@ type transferingService = transfering.Service
 type processingService = processing.Service
 type validationService = eventvalidating.Service
 
-const port = ":50055"
-
 func Run() {
-	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50055"
+	}
+	sign := os.Getenv("SIGN")
+	if len(sign) == 0 {
+		sign = "signature:50053"
+	}
+	dbString := os.Getenv("DB_STRING")
+	if dbString == "" {
+		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
+	}
+	nats := os.Getenv("NATS")
+	if len(nats) == 0 {
+		nats = "nats:4222"
+	}
+
+	storage, err := postgres.NewStorage(dbString)
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
@@ -46,7 +62,7 @@ func Run() {
 	validationService := eventvalidating.NewService(storage)
 
 	//Connect to Signature Service
-	cc, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	cc, err := grpc.Dial(sign, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Signature service %v", err)
 	} else {
@@ -56,14 +72,25 @@ func Run() {
 
 	signClient := pb.NewSignatureServiceClient(cc)
 
+	//Connect to Account Service
+	ac, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Account service %v", err)
+	} else {
+		fmt.Printf("Connection to Account service made\n")
+	}
+	defer ac.Close()
+
+	accountClient := pb.NewAccountServiceClient(ac)
+
 	//Connect Sub to NATS
-	errSub := sub.StartListening("localhost:4222", validationService)
+	errSub := sub.StartListening(nats, validationService)
 	if errSub != nil {
 		log.Fatalf("Could not connect to NATS %v", errSub)
 	}
 	fmt.Printf("Sub connection to NATS service made\n")
 
-	creatingService := creating.NewService(storage, signClient)
+	creatingService := creating.NewService(storage, signClient, accountClient)
 	listingService := listing.NewService(storage)
 	transferingService := transfering.NewService(storage, signClient)
 	processingService := processing.NewService(storage, signClient)

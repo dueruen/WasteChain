@@ -15,3 +15,53 @@ services:
       - 6222:6222
       - 8222:8222
     hostname: nats-main
+  account:
+    image: account-service
+    depends_on:
+      - db
+      - nats
+    ports:
+      - 50051:50051
+  graphql:
+    image: api-service
+    depends_on:
+      - account
+      - auth
+      - blockchain
+      - shipment
+    ports:
+      - 8081:8081
+  auth:
+    image: authentication-service
+    depends_on:
+      - db
+    ports:
+      - 50054:50054
+  blockchain:
+    image: blockchain-service
+    depends_on:
+      - db
+      - nats
+    ports:
+      - 50056:50056
+  qr:
+    image: qr-service
+    depends_on:
+      - nats
+    ports:
+      - 50052:50052
+  shipment:
+    image: shipment-service
+    depends_on:
+      - db
+      - nats
+    ports:
+      - 50055:50055
+  signature:
+    image: signature-service
+    depends_on:
+      - db
+      - nats
+      - qr
+    ports:
+      - 50053:50053

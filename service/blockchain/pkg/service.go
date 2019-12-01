@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	"github.com/dueruen/WasteChain/service/blockchain/pkg/event/pub"
@@ -18,19 +19,32 @@ import (
 	"google.golang.org/grpc"
 )
 
-const port = ":50056"
-
-var endpoint = "https://nodes.devnet.thetangle.org"
-
 func Run() {
-	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50056"
+	}
+	endpoint := os.Getenv("ENDPOINT")
+	if len(port) == 0 {
+		port = "https://nodes.devnet.thetangle.org"
+	}
+	dbString := os.Getenv("DB_STRING")
+	if dbString == "" {
+		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
+	}
+	nats := os.Getenv("NATS")
+	if len(nats) == 0 {
+		nats = "nats:4222"
+	}
+
+	storage, err := postgres.NewStorage(dbString)
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
 
 	//Connect Pub to NATS
-	pubEventHandler, errPub := pub.NewEventHandler("localhost:4222")
+	pubEventHandler, errPub := pub.NewEventHandler(nats)
 	if errPub != nil {
 		log.Fatalf("Could not connect to NATS %v", errPub)
 	}
@@ -40,7 +54,7 @@ func Run() {
 	publishService := publish.NewService(storage, endpoint, pubEventHandler)
 
 	//Connect Sub to NATS
-	errSub := sub.StartListening("localhost:4222", publishService)
+	errSub := sub.StartListening(nats, publishService)
 	if errSub != nil {
 		log.Fatalf("Could not connect to NATS %v", errSub)
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	"github.com/dueruen/WasteChain/service/qr/pkg/creating"
 	"github.com/dueruen/WasteChain/service/qr/pkg/event"
@@ -16,11 +17,16 @@ import (
 	pb "github.com/dueruen/WasteChain/service/qr/gen/proto"
 )
 
-const port = ":50052"
-
 func Run() {
-
-	eventHandler, errSub := event.NewEventHandler("localhost:4222")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50052"
+	}
+	nats := os.Getenv("NATS")
+	if len(nats) == 0 {
+		nats = "nats:4222"
+	}
+	eventHandler, errSub := event.NewEventHandler(nats)
 	if errSub != nil {
 		log.Fatalf("Could not connect to NATS %v", errSub)
 	}

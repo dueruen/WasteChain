@@ -2,12 +2,20 @@ package graphql
 
 import (
 	"context"
+	"errors"
 
 	pb "github.com/dueruen/WasteChain/service/api_gateway/gen/proto"
 )
 
 type Resolver struct {
-	AccountClient pb.AccountServiceClient
+	AccountClient        pb.AccountServiceClient
+	SignatureClient      pb.SignatureServiceClient
+	AuthenticationClient pb.AuthenticationServiceClient
+	ShipmentClient       pb.ShipmentServiceClient
+}
+
+func (r *Resolver) HistoryItem() HistoryItemResolver {
+	return &historyItemResolver{r}
 }
 
 func (r *Resolver) Mutation() MutationResolver {
@@ -17,8 +25,26 @@ func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
 }
 
+type historyItemResolver struct{ *Resolver }
+
+//HistoryItem Resolver
+func (r *historyItemResolver) Event(ctx context.Context, obj *pb.HistoryItem) (int, error) {
+	if obj.Event == pb.ShipmentEvent_CREATED {
+		return 0, nil
+	}
+	if obj.Event == pb.ShipmentEvent_TRANSFERED {
+		return 1, nil
+	}
+	if obj.Event == pb.ShipmentEvent_PROCESSED {
+		return 2, nil
+	}
+
+	return -1, errors.New("Invalid ShipmentEvent given")
+}
+
 type mutationResolver struct{ *Resolver }
 
+//Mutation Resolvers for Account service
 func (r *mutationResolver) CreateCompany(ctx context.Context, company pb.CreateCompany) (*pb.Company, error) {
 	res, err := r.AccountClient.CreateCompany(ctx, &pb.CreateCompanyRequest{
 		Company: &company,
@@ -38,8 +64,52 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, employee pb.Creat
 	return res.Employee, nil
 }
 
+//Mutation Resolvers for Signature service
+func (r *mutationResolver) ContinueDoubleSign(ctx context.Context, request pb.ContinueDoubleSignRequest) (string, error) {
+	_, err := r.SignatureClient.ContinueDoubleSign(ctx, &request)
+	if err != nil {
+		return err.Error(), err
+	}
+	return "", nil
+}
+
+//Mutation Resolvers for Authetication service
+func (r *mutationResolver) Login(ctx context.Context, request pb.LoginRequest) (string, error) {
+	res, err := r.AuthenticationClient.Login(ctx, &request)
+	if err != nil {
+		return "", err
+	}
+	return res.Token, nil
+}
+
+//Mutation Resolvers for Shipment service
+func (r *mutationResolver) CreateShipment(ctx context.Context, request pb.CreateShipmentRequest) (string, error) {
+	res, err := r.ShipmentClient.CreateShipment(ctx, &request)
+	if err != nil {
+		return res.ID, err
+	}
+	return res.ID, nil
+}
+
+func (r *mutationResolver) TransferShipment(ctx context.Context, request pb.TransferShipmentRequest) (string, error) {
+	_, err := r.ShipmentClient.TransferShipment(ctx, &request)
+	if err != nil {
+		return err.Error(), err
+	}
+	return "", nil
+}
+
+func (r *mutationResolver) ProcessShipment(ctx context.Context, request pb.ProcessShipmentRequest) (string, error) {
+	_, err := r.ShipmentClient.ProcessShipment(ctx, &request)
+	if err != nil {
+		return err.Error(), err
+	}
+	return "", nil
+}
+
 type queryResolver struct{ *Resolver }
 
+//Query Resolvers for Account service
 func (r *queryResolver) ListAllCompanies(ctx context.Context) ([]*pb.Company, error) {
 	res, err := r.AccountClient.ListAllCompanies(ctx, &pb.ListAllCompaniesRequest{})
 	if err != nil {
@@ -73,4 +143,21 @@ func (r *queryResolver) GetEmployee(ctx context.Context, employeeID string) (*pb
 		return nil, err
 	}
 	return res.Employee, nil
+}
+
+//Query Resolvers for Shipment service
+func (r *queryResolver) GetShipmentDetails(ctx context.Context, request string) (*pb.Shipment, error) {
+	res, err := r.ShipmentClient.GetShipmentDetails(ctx, &pb.GetShipmentDetailsRequest{ID: request})
+	if err != nil {
+		return nil, err
+	}
+	return res.Shipment, nil
+}
+
+func (r *queryResolver) ListAllShipments(ctx context.Context) ([]*pb.Shipment, error) {
+	res, err := r.ShipmentClient.ListAllShipments(ctx, &pb.ListAllShipmentsRequest{})
+	if err != nil {
+		return nil, err
+	}
+	return res.ShipmentList, nil
 }
