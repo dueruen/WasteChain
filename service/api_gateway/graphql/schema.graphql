@@ -19,7 +19,6 @@ type Mutation {
     continueDoubleSign(request: ContinueDoubleSignRequest!): String!
     #Authentication
     login(request: LoginRequest!): String! #Token
-    validate(token: String!): Boolean!
     #Shipment
     createShipment(request: CreateShipmentRequest!): ID!
     transferShipment(request: TransferShipmentRequest!): String!

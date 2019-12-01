@@ -82,13 +82,6 @@ func (r *mutationResolver) Login(ctx context.Context, request pb.LoginRequest) (
 	return res.Token, nil
 }
 
-func (r *mutationResolver) Validate(ctx context.Context, request string) (bool, error) {
-	res, err := r.AuthenticationClient.Validate(ctx, &pb.ValidateRequest{Token: request})
-	if err != nil {
-		return res.Valid, err
-	}
-	return res.Valid, nil
-}
 
 //Mutation Resolvers for Shipment service
 func (r *mutationResolver) CreateShipment(ctx context.Context, request pb.CreateShipmentRequest) (string, error) {
