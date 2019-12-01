@@ -114,7 +114,6 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 		CurrentHolderSignature: signature,
 		ShipmentID:             req.ShipmentID,
 	})
-
 	return nil
 }
 

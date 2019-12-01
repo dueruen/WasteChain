@@ -56,6 +56,17 @@ func Run() {
 
 	signClient := pb.NewSignatureServiceClient(cc)
 
+	//Connect to Account Service
+	ac, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Account service %v", err)
+	} else {
+		fmt.Printf("Connection to Account service made\n")
+	}
+	defer ac.Close()
+
+	accountClient := pb.NewAccountServiceClient(ac)
+
 	//Connect Sub to NATS
 	errSub := sub.StartListening("localhost:4222", validationService)
 	if errSub != nil {
@@ -63,7 +74,7 @@ func Run() {
 	}
 	fmt.Printf("Sub connection to NATS service made\n")
 
-	creatingService := creating.NewService(storage, signClient)
+	creatingService := creating.NewService(storage, signClient, accountClient)
 	listingService := listing.NewService(storage)
 	transferingService := transfering.NewService(storage, signClient)
 	processingService := processing.NewService(storage, signClient)

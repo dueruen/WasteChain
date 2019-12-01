@@ -4,5 +4,6 @@ protoc:
 	protoc -I ../.. ../../proto/Shipment.proto --go_out=plugins=grpc:gen
 	protoc -I ../.. ../../proto/Signature.proto --go_out=plugins=grpc:gen
 	protoc -I ../.. ../../proto/Blockchain.proto --go_out=plugins=grpc:gen
+	protoc -I ../.. ../../proto/Account.proto --go_out=plugins=grpc:gen
 
 include ../../base.mk

@@ -78,13 +78,13 @@ func (service *service) GetPrivateKey(userID string, passphrase string) (*rsa.Pr
 		return nil, err
 	}
 	//decrypt ciphertext
-	privateKeyJSON, err := ept.Decrypt([]byte(ciphertext), []byte(passphrase))
+	privateKeyJSON, err := ept.Decrypt(ciphertext, []byte(passphrase))
 	if err != nil {
 		return nil, err
 	}
 
 	privateKey := rsa.PrivateKey{}
-	json.Unmarshal([]byte(privateKeyJSON), &privateKey)
+	json.Unmarshal(privateKeyJSON, &privateKey)
 
 	return &privateKey, nil
 }

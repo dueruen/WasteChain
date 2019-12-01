@@ -46,7 +46,7 @@ func (srv *service) ProcessShipment(processingRequest *pb.ProcessShipmentRequest
 		Data:       byteEvent,
 		UserID:     processingRequest.OwnerID,
 		Password:   processingRequest.Password,
-		ShipmentID: processingRequest.ID,
+		ShipmentID: processingRequest.ShipmentID,
 	})
 	return nil
 }
