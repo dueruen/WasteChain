@@ -1,5 +1,5 @@
-FROM scratch
+FROM golang
 ADD ./cmd/main main
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT [ "./main" ]
 

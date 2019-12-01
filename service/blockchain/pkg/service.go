@@ -34,7 +34,7 @@ func Run() {
 	}
 	nats := os.Getenv("NATS")
 	if len(nats) == 0 {
-		nats = "localhost:4222"
+		nats = "nats:4222"
 	}
 
 	storage, err := postgres.NewStorage(dbString)

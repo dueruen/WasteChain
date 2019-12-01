@@ -22,12 +22,15 @@ services:
       - nats
     ports:
       - 50051:50051
-  grapgql:
+  graphql:
     image: api-service
     depends_on:
       - account
+      - auth
+      - blockchain
+      - shipment
     ports:
-      - 8080:8080
+      - 8081:8081
   auth:
     image: authentication-service
     depends_on:
