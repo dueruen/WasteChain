@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"errors"
 
 	pb "github.com/dueruen/WasteChain/service/api_gateway/gen/proto"
 )
@@ -13,11 +14,32 @@ type Resolver struct {
 	ShipmentClient       pb.ShipmentServiceClient
 }
 
+func (r *Resolver) HistoryItem() HistoryItemResolver {
+	return &historyItemResolver{r}
+}
+
 func (r *Resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
 func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
+}
+
+type historyItemResolver struct{ *Resolver }
+
+//HistoryItem Resolver
+func (r *historyItemResolver) Event(ctx context.Context, obj *pb.HistoryItem) (int, error) {
+	if obj.Event == pb.ShipmentEvent_CREATED {
+		return 0, nil
+	}
+	if obj.Event == pb.ShipmentEvent_TRANSFERED {
+		return 1, nil
+	}
+	if obj.Event == pb.ShipmentEvent_PROCESSED {
+		return 2, nil
+	}
+
+	return -1, errors.New("Invalid ShipmentEvent given")
 }
 
 type mutationResolver struct{ *Resolver }
