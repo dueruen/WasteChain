@@ -14,12 +14,13 @@ type Service interface {
 }
 
 type Repository interface {
-	CreateNewShipment(creationRequest *pb.CreateShipmentRequest, timestamp string) (string, *pb.HistoryItem, error)
+	CreateNewShipment(creationRequest *pb.CreateShipmentRequest, timestamp string, companyID string) (string, *pb.HistoryItem, error)
 }
 
 type service struct {
-	createRepo Repository
-	signClient pb.SignatureServiceClient
+	createRepo    Repository
+	signClient    pb.SignatureServiceClient
+	accountClient pb.AccountServiceClient
 }
 
 type dataEvent struct {
@@ -30,12 +31,18 @@ type dataEvent struct {
 	Location   string
 }
 
-func NewService(createRepo Repository, signClient pb.SignatureServiceClient) Service {
-	return &service{createRepo, signClient}
+func NewService(createRepo Repository, signClient pb.SignatureServiceClient, accountClient pb.AccountServiceClient) Service {
+	return &service{createRepo, signClient, accountClient}
 }
 
 func (srv *service) CreateShipment(creationRequest *pb.CreateShipmentRequest) (string, error) {
-	id, historyItem, error := srv.createRepo.CreateNewShipment(creationRequest, time.Now().String())
+
+	res, _ := srv.accountClient.GetEmployee(context.Background(), &pb.GetEmployeeRequest{
+		ID: creationRequest.CurrentHolderID,
+	})
+	employee := res.Employee
+
+	id, historyItem, error := srv.createRepo.CreateNewShipment(creationRequest, time.Now().String(), employee.CompanyID)
 	dataEvent := mapHistoryItemToDataEvent(historyItem)
 	byteEvent := dataEventToByteArray(dataEvent)
 

@@ -58,10 +58,11 @@ func createSchema(db *gorm.DB) error {
 	return nil
 }
 
-func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string) (string, *pb.HistoryItem, error) {
+func (storage *Storage) CreateNewShipment(shipment *pb.CreateShipmentRequest, timestamp string, companyID string) (string, *pb.HistoryItem, error) {
 	newShipment := &pb.Shipment{
-		CurrentHolderID: shipment.CurrentHolderID,
-		WasteType:       shipment.WasteType,
+		CurrentHolderID:    shipment.CurrentHolderID,
+		ProducingCompanyID: companyID,
+		WasteType:          shipment.WasteType,
 		History: []*pb.HistoryItem{
 			&pb.HistoryItem{
 				Event:      0,
@@ -104,13 +105,11 @@ func (storage *Storage) ListAllShipments() (error, []*pb.Shipment) {
 	}
 
 	for _, shipment := range shipments {
-		fmt.Println(shipment.History)
 		if len(shipment.History) == 0 {
 			continue
 		}
 		shipment = getAllShipmentData(storage.db, shipment)
 		shipmentsToBeReturned = append(shipmentsToBeReturned, shipment)
-		fmt.Println(len(shipmentsToBeReturned))
 	}
 
 	return nil, shipmentsToBeReturned
@@ -126,7 +125,7 @@ func getAllShipmentData(db *gorm.DB, shipment *pb.Shipment) *pb.Shipment {
 
 func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentRequest, timeStamp string) (*pb.HistoryItem, error) {
 
-	if storage.shipmentHasBeenProcessed(processRequest.ID) {
+	if storage.shipmentHasBeenProcessed(processRequest.ShipmentID) {
 		return nil, errors.New("Shipment has already been processed, and can therefore not be processed again")
 	}
 
@@ -141,7 +140,7 @@ func (storage *Storage) ProcessShipment(processRequest *pb.ProcessShipmentReques
 	processEventID, _ := uuid.NewV4()
 
 	processEvent.ID = processEventID.String()
-	processEvent.ShipmentID = processRequest.ID
+	processEvent.ShipmentID = processRequest.ShipmentID
 
 	storage.db.Create(processEvent)
 	return processEvent, nil
@@ -176,6 +175,13 @@ func (storage *Storage) LatestHistoryEventIsPublished(shipmentID string) error {
 	storage.db.Where("shipment_id = ? AND published = false", shipmentID).Last(&hi)
 	hi.Published = true
 
+	if hi.Event == 1 {
+		var shipment pb.Shipment
+		storage.db.Where("id = ?", shipmentID).First(&shipment)
+		shipment.CurrentHolderID = hi.ReceiverID
+		storage.db.Save(shipment)
+	}
+
 	storage.db.Save(hi)
 	return nil
 }
@@ -184,11 +190,8 @@ func (storage *Storage) shipmentHasBeenProcessed(shipmentID string) bool {
 	var hi pb.HistoryItem
 	storage.db.Order("time_stamp desc").First(&hi)
 
-	fmt.Println(hi.ID)
-
 	if hi.Event == 2 {
 		return true
 	}
 	return false
-
 }

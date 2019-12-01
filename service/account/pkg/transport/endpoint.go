@@ -70,7 +70,7 @@ func makeListAllEmployeesInCompanyEndpoint(service listing.Service) endpoint.End
 
 func makeGetEmployeeEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(pb.GetEmployeeRequest)
+		req := request.(*pb.GetEmployeeRequest)
 		res, _ := service.GetEmployee(req.ID)
 		return &pb.GetEmployeeResponse{Employee: res}, nil
 	}
