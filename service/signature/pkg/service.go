@@ -29,12 +29,12 @@ func Run() {
 		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
 	}
 	qr := os.Getenv("QR")
-	if len(rq) == 0 {
-		rq = "localhost:50052"
+	if qr == "" {
+		qr = "localhost:50052"
 	}
 	nats := os.Getenv("NATS")
-	if len(nats) == 0 {
-		nats = "localhost:4222"
+	if nats == "" {
+		nats = "nats:4222"
 	}
 
 	//Create storage

@@ -2,6 +2,8 @@ package sub
 
 import (
 	"encoding/json"
+	"fmt"
+	"time"
 
 	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	"github.com/dueruen/WasteChain/service/blockchain/pkg/publish"
@@ -41,9 +43,18 @@ func (handler *eventHandler) listenToSignature() {
 }
 
 func connectToNats(url string) (encodedConn *nats.EncodedConn, err error) {
-	conn, err := nats.Connect(url)
-	if err != nil {
-		return
+	i := 5
+	for i > 0 {
+		conn, err := nats.Connect(url)
+		if err != nil {
+			fmt.Println("Can't connect to nats, sleeping for 2 sec, err: ", err)
+			time.Sleep(2 * time.Second)
+			i--
+			continue
+		} else {
+			fmt.Println("Connected to storanatsge")
+			return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+		}
 	}
-	return nats.NewEncodedConn(conn, nats.JSON_ENCODER)
+	panic("Not connected to storage")
 }

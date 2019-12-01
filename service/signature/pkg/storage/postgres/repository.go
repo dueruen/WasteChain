@@ -26,8 +26,8 @@ type ProgressData struct {
 	DataHash        []byte
 }
 
-func NewStorage(host, port, user, dbname, password string) (*Storage, error) {
-	db := connect(host, port, user, dbname, password)
+func NewStorage(db_string string) (*Storage, error) {
+	db := connect(db_string)
 
 	err := createSchema(db)
 	if err != nil {
@@ -40,16 +40,17 @@ func Close(s *Storage) {
 	s.db.Close()
 }
 
-func connect(host, port, user, dbname, password string) *gorm.DB {
+func connect(db_string string) *gorm.DB {
 	i := 5
 	for i > 0 {
-		db, err := gorm.Open("postgres", "host="+host+" port="+port+" user="+user+" dbname="+dbname+" password="+password+" sslmode=disable")
+		db, err := gorm.Open("postgres", db_string)
 		if err != nil {
-			fmt.Println("Can't connect to db, sleeping for 2 sec")
+			fmt.Println("Can't connect to db, sleeping for 2 sec, err: ", err)
 			time.Sleep(2 * time.Second)
 			i--
 			continue
 		} else {
+			fmt.Println("Connected to storage")
 			return db
 		}
 	}

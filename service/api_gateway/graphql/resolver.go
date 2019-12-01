@@ -82,7 +82,6 @@ func (r *mutationResolver) Login(ctx context.Context, request pb.LoginRequest) (
 	return res.Token, nil
 }
 
-
 //Mutation Resolvers for Shipment service
 func (r *mutationResolver) CreateShipment(ctx context.Context, request pb.CreateShipmentRequest) (string, error) {
 	res, err := r.ShipmentClient.CreateShipment(ctx, &request)

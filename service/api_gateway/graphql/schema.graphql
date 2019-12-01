@@ -25,7 +25,13 @@ type Mutation {
     processShipment(request: ProcessShipmentRequest!): String!
 }
 
+input AuthData {
+    username: String!
+    password: String!
+}
+
 input CreateCompany {
+    authData: AuthData!
     name: String!
     address: CreateAddress!
     contactinfo: CreateContactInfo!
@@ -67,6 +73,7 @@ type ContactInfo {
 }
 
 input CreateEmployee {
+    authData: AuthData!
     name: String!
     companyID: String!
 }

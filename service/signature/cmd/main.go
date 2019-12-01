@@ -1,7 +1,7 @@
 package main
 
-import "github.com/dueruen/WasteChain/service/signature"
+import "github.com/dueruen/WasteChain/service/signature/pkg"
 
 func main() {
-	signature.Run()
+	pkg.Run()
 }

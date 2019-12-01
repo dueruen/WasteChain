@@ -35,11 +35,11 @@ func Run() {
 	}
 	sign := os.Getenv("SIGN")
 	if len(sign) == 0 {
-		sign = "localhost:50053"
+		sign = "signature:50053"
 	}
 	auth := os.Getenv("AUTH")
 	if len(auth) == 0 {
-		auth = "localhost:50054"
+		auth = "auth:50054"
 	}
 
 	storage, err := postgres.NewStorage(dbString)

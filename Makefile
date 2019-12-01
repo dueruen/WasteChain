@@ -1,6 +1,6 @@
 buildAll: account apiGateway signature qr authentication blockchain shipment
 
-runDev: account
+runDev: buildAll
 	docker-compose up
 
 down:
