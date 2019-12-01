@@ -15,11 +15,17 @@ import (
 	"google.golang.org/grpc"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	//Connect to Account service
-	accountConn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8081"
+	}
+	acco := os.Getenv("ACCO")
+	if len(acco) == 0 {
+		acco = "localhost:50051"
+	}
+
+	accountConn, err := grpc.Dial(acco, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to account service %v", err)
 	}
@@ -61,11 +67,6 @@ func main() {
 		ShipmentClient:       shipmentService,
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
-
 	router := chi.NewRouter()
 
 	// Add CORS middleware around every request
@@ -90,7 +91,7 @@ func main() {
 		handler.GraphQL(graphql.NewExecutableSchema(graphql.Config{Resolvers: &resolver}), handler.WebsocketUpgrader(upgrader)),
 	)
 
-	err = http.ListenAndServe(":8081", router)
+	err = http.ListenAndServe(port, router)
 	if err != nil {
 		panic(err)
 	}

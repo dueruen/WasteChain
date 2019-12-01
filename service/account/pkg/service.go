@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	"github.com/dueruen/WasteChain/service/account/pkg/creating"
 	"github.com/dueruen/WasteChain/service/account/pkg/listing"
@@ -23,17 +24,32 @@ type creatingRepository = creating.Repository
 type listingService = listing.Service
 type creatingService = creating.Service
 
-const port = ":50051"
-
 func Run() {
-	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50051"
+	}
+	dbString := os.Getenv("DB_STRING")
+	if dbString == "" {
+		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
+	}
+	sign := os.Getenv("SIGN")
+	if len(sign) == 0 {
+		sign = "localhost:50053"
+	}
+	auth := os.Getenv("AUTH")
+	if len(auth) == 0 {
+		auth = "localhost:50054"
+	}
+
+	storage, err := postgres.NewStorage(dbString)
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
 
 	//Connect to Signature Service
-	signConn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	signConn, err := grpc.Dial(sign, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Signature service %v", err)
 	} else {
@@ -44,7 +60,7 @@ func Run() {
 	signClient := pb.NewSignatureServiceClient(signConn)
 
 	//Connect to Authentication Service
-	authConn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
+	authConn, err := grpc.Dial(auth, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Authentication service %v", err)
 	} else {
