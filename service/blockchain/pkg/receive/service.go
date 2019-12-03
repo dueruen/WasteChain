@@ -77,12 +77,11 @@ func receive(address, endpoint string) ([][]byte, error) {
 		buffers = append(buffers, bytes.Buffer{})
 		buffers[i].WriteString(tx.SignatureMessageFragment)
 	}
-	fmt.Println("BLOCK BUFFER SIZE: ", len(buffers))
+	// fmt.Println("BLOCK BUFFER SIZE: ", len(buffers))
 	messages := make([][]byte, 0)
 	for _, buf := range buffers {
 		r := regexp.MustCompile("\\d{2,}")
 		suf := r.ReplaceAllString(buf.String(), "")
-		fmt.Println("TRYTES: ", suf)
 		msg, err := converter.TrytesToASCII(suf)
 		if err != nil {
 			fmt.Println("BLOCK TrytesToASCII err: ", err)
@@ -93,9 +92,7 @@ func receive(address, endpoint string) ([][]byte, error) {
 			fmt.Println("BLOCK Decompress err: ", err)
 			return nil, errors.New("Decompress: " + err.Error())
 		}
-		fmt.Println("DEDATA: ", string(decompressData))
 		messages = append(messages, decompressData)
 	}
-	fmt.Println("BLOCK MESSAGE SIZE: ", len(messages))
 	return messages, nil
 }

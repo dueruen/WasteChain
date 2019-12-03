@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
+	"time"
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 
@@ -94,11 +96,13 @@ func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) er
 		return err
 	}
 
+	now := time.Now()
 	doneEvent := &pb.DoneEvent{
 		EventType:              pb.DoneEventType_DOUBLE_SIGN_DONE,
 		CurrentHolderSignature: currentHolderSignature,
 		NewHolderSignature:     newHolderSignature,
 		ShipmentID:             shipmentID,
+		Time:                   now.Unix(),
 	}
 
 	data, _ := json.Marshal(doneEvent)
@@ -113,27 +117,23 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 	//sign data
 	_, _, signature, err := service.sign(req.Data, req.UserID, req.Password)
 	if err != nil {
+		fmt.Println("SIGN SINGLE err 1: ", err)
 		return err
 	}
 
-	fmt.Println("SIGNATURE########: ", signature)
+	now := time.Now()
 	doneEvent := &pb.DoneEvent{
 		EventType:              pb.DoneEventType_SINGLE_SIGN_DONE,
 		CurrentHolderSignature: signature,
 		ShipmentID:             req.ShipmentID,
+		Time:                   now.Unix(),
 	}
 
 	data, _ := json.Marshal(doneEvent)
 	doneEvent.Data = data
-	fmt.Println("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤")
-	itemData := pb.DoneEvent{}
-	json.Unmarshal(data, &itemData)
-	fmt.Println("DATA string: ", string(data))
-	fmt.Println("dATAA unmarshal: ", itemData)
 
 	//Public event SingleSignDone
 	service.eventHandler.SingleSignDone(doneEvent)
-
 	return nil
 }
 
@@ -151,12 +151,21 @@ func (service *service) VerifyHistory(req *pb.VerifyHistoryRequest) *pb.VerifyHi
 		return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("No history").Error()}
 	}
 
-	for i, item := range res.History {
+	sortBlockData := make([]pb.DoneEvent, 0)
+	for _, d := range res.History {
 		itemData := pb.DoneEvent{}
-		json.Unmarshal(item, &itemData)
+		json.Unmarshal(d, &itemData)
+		sortBlockData = append(sortBlockData, itemData)
+	}
 
+	if len(res.History) > 1 {
+		sort.Slice(sortBlockData[:], func(i, j int) bool {
+			return sortBlockData[i].Time < sortBlockData[j].Time
+		})
+	}
+
+	for i, itemData := range sortBlockData {
 		reqItem := req.History[i]
-		fmt.Println("&&&&&&&&&&&&&&&&&&& DATA: ", string(reqItem.Data))
 
 		if (i == 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") || (i != 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") {
 			err := service.singleVerify(reqItem.CurrentHolderID, itemData.CurrentHolderSignature, reqItem.Data)
@@ -175,8 +184,6 @@ func (service *service) VerifyHistory(req *pb.VerifyHistoryRequest) *pb.VerifyHi
 			return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("Error verifying history").Error()}
 		}
 	}
-
-	fmt.Println("VERIFY DATA OK!!!!")
 	return &pb.VerifyHistoryResponse{Ok: true}
 }
 
@@ -199,6 +206,7 @@ func (service *service) doubleVerify(currentHolderID, newHolderID string, data, 
 	//Verify currentHolder
 	_, err := service.verify(currentHolderID, dataHash, currentHolderSignature)
 	if err != nil {
+		fmt.Println("DoubleVery current err: ", err)
 		return err
 	}
 
@@ -208,6 +216,7 @@ func (service *service) doubleVerify(currentHolderID, newHolderID string, data, 
 	//Verify nextHolder
 	_, err = service.verify(newHolderID, newDataHash, newHolderSignature)
 	if err != nil {
+		fmt.Println("DoubleVery next err: ", err)
 		return err
 	}
 	return nil

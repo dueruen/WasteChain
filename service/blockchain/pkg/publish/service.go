@@ -63,7 +63,6 @@ func (srv *service) Publish(shipmentID string, data []byte) error {
 	srv.eventHandler.PublishDone(&pb.PublishedEvent{
 		ShipmentID: shipmentID,
 	})
-	fmt.Println("SEND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!____________________!!!!!!!!!!!!!!!!!")
 	return nil
 }
 

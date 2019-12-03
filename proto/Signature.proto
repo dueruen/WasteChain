@@ -25,6 +25,7 @@ message DoneEvent {
     bytes NewHolderSignature = 3;
     string ShipmentID = 4;
     bytes Data = 5;
+    int64 Time = 6;
 }
 
 message DoubleSignNeededEvent {

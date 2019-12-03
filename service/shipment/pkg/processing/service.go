@@ -1,12 +1,11 @@
 package processing
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
 	"time"
 
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
+	encode "github.com/dueruen/WasteChain/service/shipment/pkg/encode"
 )
 
 type Service interface {
@@ -22,14 +21,6 @@ type service struct {
 	signClient     pb.SignatureServiceClient
 }
 
-type dataEvent struct {
-	Event      pb.ShipmentEvent
-	OwnerID    string
-	ReceiverID string
-	TimeStamp  string
-	Location   string
-}
-
 func NewService(processingRepo Repository, signClient pb.SignatureServiceClient) Service {
 	return &service{processingRepo, signClient}
 }
@@ -39,8 +30,7 @@ func (srv *service) ProcessShipment(processingRequest *pb.ProcessShipmentRequest
 	if error != nil {
 		return error
 	}
-	dataEvent := mapHistoryItemToDataEvent(historyItem)
-	byteEvent := dataEventToByteArray(dataEvent)
+	byteEvent := encode.ToByte(historyItem)
 
 	srv.signClient.SingleSign(context.Background(), &pb.SingleSignRequest{
 		Data:       byteEvent,
@@ -49,23 +39,4 @@ func (srv *service) ProcessShipment(processingRequest *pb.ProcessShipmentRequest
 		ShipmentID: processingRequest.ShipmentID,
 	})
 	return nil
-}
-
-func mapHistoryItemToDataEvent(historyItem *pb.HistoryItem) *dataEvent {
-	newDataEvent := &dataEvent{
-		Event:      historyItem.Event,
-		OwnerID:    historyItem.OwnerID,
-		ReceiverID: historyItem.ReceiverID,
-		TimeStamp:  historyItem.TimeStamp,
-		Location:   historyItem.Location,
-	}
-
-	return newDataEvent
-}
-
-func dataEventToByteArray(event *dataEvent) []byte {
-	buf := new(bytes.Buffer)
-	enc := gob.NewEncoder(buf)
-	enc.Encode(event)
-	return buf.Bytes()
 }
