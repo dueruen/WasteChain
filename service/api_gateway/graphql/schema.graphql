@@ -73,6 +73,7 @@ type ContactInfo {
 }
 
 input CreateEmployee {
+    authData: AuthData!
     name: String!
     companyID: String!
 }
