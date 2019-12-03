@@ -1,7 +1,6 @@
 package sub
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -34,11 +33,7 @@ type PublishData struct {
 
 func (handler *eventHandler) listenToSignature() {
 	handler.natsConn.QueueSubscribe(pb.SignSubjectTypes_SIGN_DONE.String(), "queue", func(e *pb.DoneEvent) {
-		data, _ := json.Marshal(&PublishData{
-			CurrentHolderSignature: e.CurrentHolderSignature,
-			NewHolderSignature:     e.NewHolderSignature,
-		})
-		handler.publishSrv.Publish(e.ShipmentID, data)
+		handler.publishSrv.Publish(e.ShipmentID, e.Data)
 	})
 }
 

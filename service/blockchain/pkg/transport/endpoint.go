@@ -24,11 +24,11 @@ func MakeEndpoints(receiveSrv receive.Service, publishSrv publish.Service) Endpo
 func makeGetShipmentDataEndpoint(service receive.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*pb.GetShipmentDataRequest)
-		err := service.GetShipmentData(req.ShipmentID)
+		err, history := service.GetShipmentData(req.ShipmentID)
 		if err != nil {
 			return &pb.GetShipmentDataResponse{Error: err.Error()}, nil
 		}
-		return &pb.GetShipmentDataResponse{}, nil
+		return &pb.GetShipmentDataResponse{History: history}, nil
 	}
 }
 

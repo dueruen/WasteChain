@@ -25,8 +25,8 @@ func Run() {
 		port = ":50056"
 	}
 	endpoint := os.Getenv("ENDPOINT")
-	if len(port) == 0 {
-		port = "https://nodes.devnet.thetangle.org"
+	if endpoint == "" {
+		endpoint = "https://nodes.devnet.thetangle.org"
 	}
 	dbString := os.Getenv("DB_STRING")
 	if dbString == "" {
@@ -50,7 +50,7 @@ func Run() {
 	}
 	fmt.Printf("Pub Connection to NATS service made\n")
 
-	receiveService := receive.NewService(storage, endpoint, pubEventHandler)
+	receiveService := receive.NewService(storage, endpoint)
 	publishService := publish.NewService(storage, endpoint, pubEventHandler)
 
 	//Connect Sub to NATS

@@ -6,6 +6,11 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sort"
+	"time"
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 
@@ -29,8 +34,7 @@ type Service interface {
 	FinishStartDoubleSign(progressID string, qrCode []byte)
 	ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) error
 	SingleSign(req *pb.SingleSignRequest) error
-	SingleVerify(req *pb.SingleVerifyRequest) (bool, error)
-	DoubleVerify(req *pb.DoubleVerifyRequest) (bool, error)
+	VerifyHistory(req *pb.VerifyHistoryRequest) *pb.VerifyHistoryResponse
 }
 
 type service struct {
@@ -38,10 +42,11 @@ type service struct {
 	keyService   key.Service
 	eventHandler EventHandler
 	qrClient     pb.QRServiceClient
+	blockClient  pb.BlockchainServiceClient
 }
 
-func NewService(repo Repository, keyService key.Service, eventHandler EventHandler, qrClient pb.QRServiceClient) Service {
-	return &service{repo, keyService, eventHandler, qrClient}
+func NewService(repo Repository, keyService key.Service, eventHandler EventHandler, qrClient pb.QRServiceClient, blockClient pb.BlockchainServiceClient) Service {
+	return &service{repo, keyService, eventHandler, qrClient, blockClient}
 }
 
 func (service *service) StartDoubleSign(req *pb.StartDoubleSignRequest) error {
@@ -91,13 +96,20 @@ func (service *service) ContinueDoubleSign(req *pb.ContinueDoubleSignRequest) er
 		return err
 	}
 
-	//Public event DoubleSignDone
-	service.eventHandler.DoubleSignDone(&pb.DoneEvent{
+	now := time.Now()
+	doneEvent := &pb.DoneEvent{
 		EventType:              pb.DoneEventType_DOUBLE_SIGN_DONE,
 		CurrentHolderSignature: currentHolderSignature,
 		NewHolderSignature:     newHolderSignature,
 		ShipmentID:             shipmentID,
-	})
+		Time:                   now.Unix(),
+	}
+
+	data, _ := json.Marshal(doneEvent)
+	doneEvent.Data = data
+
+	//Public event DoubleSignDone
+	service.eventHandler.DoubleSignDone(doneEvent)
 	return nil
 }
 
@@ -105,49 +117,109 @@ func (service *service) SingleSign(req *pb.SingleSignRequest) error {
 	//sign data
 	_, _, signature, err := service.sign(req.Data, req.UserID, req.Password)
 	if err != nil {
+		fmt.Println("SIGN SINGLE err 1: ", err)
 		return err
 	}
 
-	//Public event SingleSignDone
-	service.eventHandler.SingleSignDone(&pb.DoneEvent{
+	now := time.Now()
+	doneEvent := &pb.DoneEvent{
 		EventType:              pb.DoneEventType_SINGLE_SIGN_DONE,
 		CurrentHolderSignature: signature,
 		ShipmentID:             req.ShipmentID,
-	})
+		Time:                   now.Unix(),
+	}
+
+	data, _ := json.Marshal(doneEvent)
+	doneEvent.Data = data
+
+	//Public event SingleSignDone
+	service.eventHandler.SingleSignDone(doneEvent)
 	return nil
 }
 
-func (service *service) SingleVerify(req *pb.SingleVerifyRequest) (bool, error) {
-	//Hash data
-	dataHash, _ := hashData(req.Data)
+func (service *service) VerifyHistory(req *pb.VerifyHistoryRequest) *pb.VerifyHistoryResponse {
+	res, err := service.blockClient.GetShipmentData(context.Background(), &pb.GetShipmentDataRequest{
+		ShipmentID: req.ShipmentID,
+	})
 
-	//Verify
-	ok, err := service.verify(req.UserID, dataHash, req.Signature)
-	if !ok || err != nil {
-		return false, err
+	if err != nil {
+		fmt.Println("SIGN GetShipmentData ERR: ", err)
+		return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
 	}
-	return true, nil
+	if len(res.History) == 0 {
+		fmt.Println("SIGN NO HISTORY on IOTA")
+		return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("No history").Error()}
+	}
+
+	sortBlockData := make([]pb.DoneEvent, 0)
+	for _, d := range res.History {
+		itemData := pb.DoneEvent{}
+		json.Unmarshal(d, &itemData)
+		sortBlockData = append(sortBlockData, itemData)
+	}
+
+	if len(res.History) > 1 {
+		sort.Slice(sortBlockData[:], func(i, j int) bool {
+			return sortBlockData[i].Time < sortBlockData[j].Time
+		})
+	}
+
+	for i, itemData := range sortBlockData {
+		reqItem := req.History[i]
+
+		if (i == 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") || (i != 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID == "") {
+			err := service.singleVerify(reqItem.CurrentHolderID, itemData.CurrentHolderSignature, reqItem.Data)
+			if err != nil {
+				fmt.Println("SIGN singleVerify ERR: ", err)
+				return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
+			}
+		} else if i != 0 && reqItem.CurrentHolderID != "" && reqItem.NewHolderID != "" {
+			err := service.doubleVerify(reqItem.CurrentHolderID, reqItem.NewHolderID, reqItem.Data, itemData.CurrentHolderSignature, itemData.NewHolderSignature)
+			if err != nil {
+				fmt.Println("SIGN doubleVerify ERR: ", err)
+				return &pb.VerifyHistoryResponse{Ok: false, Error: err.Error()}
+			}
+		} else {
+			fmt.Println("SIGN Error verifying history")
+			return &pb.VerifyHistoryResponse{Ok: false, Error: errors.New("Error verifying history").Error()}
+		}
+	}
+	return &pb.VerifyHistoryResponse{Ok: true}
 }
 
-func (service *service) DoubleVerify(req *pb.DoubleVerifyRequest) (bool, error) {
+func (service *service) singleVerify(id string, signature, data []byte) error {
 	//Hash data
-	dataHash, _ := hashData(req.Data)
+	dataHash, _ := hashData(data)
+
+	//Verify
+	ok, err := service.verify(id, dataHash, signature)
+	if !ok || err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *service) doubleVerify(currentHolderID, newHolderID string, data, currentHolderSignature, newHolderSignature []byte) error {
+	//Hash data
+	dataHash, _ := hashData(data)
 
 	//Verify currentHolder
-	_, err := service.verify(req.CurrentHolderID, dataHash, req.CurrentHolderSignature)
+	_, err := service.verify(currentHolderID, dataHash, currentHolderSignature)
 	if err != nil {
-		return false, err
+		fmt.Println("DoubleVery current err: ", err)
+		return err
 	}
 
 	//Hash data
 	newDataHash, _ := hashData(dataHash)
 
 	//Verify nextHolder
-	_, err = service.verify(req.NewHolderID, newDataHash, req.NewHolderSignature)
+	_, err = service.verify(newHolderID, newDataHash, newHolderSignature)
 	if err != nil {
-		return false, err
+		fmt.Println("DoubleVery next err: ", err)
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 func (service *service) sign(data []byte, id, password string) (dataHash []byte, privateKey *rsa.PrivateKey, signature []byte, err error) {
@@ -197,6 +269,7 @@ func (service *service) verify(userID string, dataHash, signature []byte) (bool,
 	//Get public key
 	publicKey, err := service.keyService.GetPublicKey(userID)
 	if err != nil {
+		fmt.Println("GetPublicKey ERR: ", err)
 		return false, err
 	}
 
@@ -210,6 +283,7 @@ func (service *service) verify(userID string, dataHash, signature []byte) (bool,
 		&opts,
 	)
 	if err != nil {
+		fmt.Println("VerifyPSS Err: ", err)
 		return false, err
 	}
 	return true, nil
