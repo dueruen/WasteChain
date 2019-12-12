@@ -42,21 +42,59 @@ export function GetCompany(companyID)  {
 }
 
 /**
- * Query to create an employee
+ * Mutation to create a company
+ */
+const CREATE_COMPANY =
+gql`
+    mutation CreateCompany($authData: AuthData!,$name: String!, $address: CreateAddress!, $contactInfo: CreateContactInfo!)
+    {createCompany(company:
+        {
+            authData: $authData,
+            name: $name,
+            address: $address,
+            contactinfo: $contactinfo
+        }
+    )}
+`;
+
+/**
+ * Function to create a company
+ * @param {AuthData} authData
+ * @param {String} name
+ * @param {CreateCompany} address
+ * @param {CreateContactInfo} contactinfo
+ */
+export function CreateCompany(authData, name, address, contactinfo)  {
+    const res = useMutation(CREATE_COMPANY, { variables: {authData, name, address, contactinfo}});
+    res[0].call()
+}
+
+
+
+
+/**
+ * Mutation to create an employee
  */
 const CREATE_EMPLOYEE =
 gql`
-    mutation CreateEmployee($name: String!, $companyID: ID!)
+    mutation CreateEmployee($authData: AuthData!,$name: String!, $companyID: String!)
     {createEmployee(employee:
         {
+            authData: $authData,
             name: $name,
             companyID: $companyID,
         }
     )}
 `;
 
-export function CreateEmployee(name, companyID)  {
-    const res = useMutation(CREATE_EMPLOYEE, { variables: {name, companyID}});
+/**
+ * Function to create employee
+ * @param {AuthData} authData
+ * @param {string} name
+ * @param {string} companyID
+ */
+export function CreateEmployee(authData, name, companyID)  {
+    const res = useMutation(CREATE_EMPLOYEE, { variables: {authData, name, companyID}});
     res[0].call()
 }
 

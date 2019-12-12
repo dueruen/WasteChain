@@ -54,12 +54,77 @@ gql`
             location: $location,
             password: $password
         }
-    )}
+    )ID}
 `;
 
+/**
+ * Creates a new shipment
+ * @param {string} wasteType
+ * @param {string} currentHolderID
+ * @param {string} location
+ * @param {string} password
+ */
 export function CreateShipment(wasteType, currentHolderID, location, password)  {
     const mutation = useMutation(CREATE_SHIPMENT, { variables: {wasteType, currentHolderID, location, password}});
     mutation[0].call()
 }
 
+/**
+ * Mutation to transfer a shipment
+ */
+const TRANSFER_SHIPMENT =
+gql`
+    mutation TransferShipment($shipmentID: String!, $ownerID: String!,$receiverID: String!, $location: String!, $password: String!)
+    {tansferShipment(request:
+        {
+            shipmentID: $shipmentID,
+            ownerID: $ownerID,
+            receiverID: $receiverID,
+            location: $location,
+            password: $password,
+        }
+    )}
+`;
+
+/**
+ * Mutation function to transfer a shipment
+ * @param {String} shipmentID
+ * @param {String} ownerID
+ * @param {String} receiverID
+ * @param {String} location
+ * @param {String} password
+ */
+export function TransferShipment(shipmentID, ownerID, receiverID, location, password)  {
+    const mutation = useMutation(TRANSFER_SHIPMENT, { variables: {shipmentID, ownerID, receiverID, location, password}});
+    mutation[0].call()
+}
+
+
+/**
+ * Mutation to process a shipment
+ */
+const PROCESS_SHIPMENT =
+gql`
+    mutation ProcessShipment($shipmentID: String!, $ownerID: String!, $location: String!, $password: String!)
+    {processShipment(request:
+        {
+            shipmentID: $shipmentID,
+            ownerID: $ownerID,
+            location: $location,
+            password: $password,
+        }
+    )}
+`;
+
+/**
+ * Mutation function to process a shipment
+ * @param {String} shipmentID
+ * @param {String} ownerID
+ * @param {String} location
+ * @param {String} password
+ */
+export function ProcessShipment(shipmentID, ownerID, location, password)  {
+    const mutation = useMutation(PROCESS_SHIPMENT, { variables: {shipmentID, ownerID, location, password}});
+    mutation[0].call()
+}
 
