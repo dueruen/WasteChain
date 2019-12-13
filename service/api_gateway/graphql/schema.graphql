@@ -26,7 +26,7 @@ type Mutation {
 }
 
 input AuthData {
-    username: String!
+    userName: String!
     password: String!
 }
 

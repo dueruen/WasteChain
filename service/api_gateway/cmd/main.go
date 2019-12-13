@@ -85,13 +85,18 @@ func main() {
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"X-Requested-With", "Accept", "Authorization", "Accept-Language", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
+		Debug:            true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}).Handler)
 
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			// Check against your desired domains here
-			return r.Host == "example.org"
+			return r.Host == "http://localhost:8081" || r.Host == "http://localhost:3000"
 		},
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,

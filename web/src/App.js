@@ -1,11 +1,17 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 // import './App.css';
+
+import { ApolloProvider, useQuery } from '@apollo/react-hooks';
+import gqlclient from './api/gql/ApolloClient'
+import Pages from './pages';
+
 
 const App = () => {
     return (
-        <Fragment>
-            <h1>WasteChain</h1>
-        </Fragment>
+        <ApolloProvider client={gqlclient}>
+            {/* <IsLoggedIn /> */}
+            <Pages></Pages>
+        </ApolloProvider>
     )
 }
 
