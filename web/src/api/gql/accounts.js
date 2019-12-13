@@ -132,7 +132,8 @@ const LIST_ALL_EMPLOYEES_IN_COMPANY =
 `;
 
 /**
- * Function executing query for listing all employees in a company
+ * Function to execute listAllEmployeesInCompany query
+ * @param {string} companyID
  */
 export function ListAllEmployeesInCompany(companyID)  {
     const data = useQuery(LIST_ALL_EMPLOYEES_IN_COMPANY, { variables: {companyID}});
