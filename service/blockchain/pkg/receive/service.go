@@ -3,10 +3,10 @@ package receive
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"regexp"
 	"sort"
-	"strings"
 
-	pb "github.com/dueruen/WasteChain/service/blockchain/gen/proto"
 	compress "github.com/dueruen/WasteChain/service/blockchain/pkg/compress"
 	iotaAPI "github.com/iotaledger/iota.go/api"
 	"github.com/iotaledger/iota.go/converter"
@@ -17,43 +17,36 @@ type Repository interface {
 	GetShipmentAddress(shipmentID string) (addr string, err error)
 }
 
-type EventHandler interface {
-	DataFound(event *pb.DataFoundEvent)
-}
-
 type Service interface {
-	GetShipmentData(shipmentID string) error
+	GetShipmentData(shipmentID string) (error, [][]byte)
 }
 
 type service struct {
-	repo         Repository
-	endpoint     string
-	eventHandler EventHandler
+	repo     Repository
+	endpoint string
 }
 
-func NewService(repo Repository, endpoint string, eventHandler EventHandler) Service {
-	return &service{repo, endpoint, eventHandler}
+func NewService(repo Repository, endpoint string) Service {
+	return &service{repo, endpoint}
 }
 
-func (srv *service) GetShipmentData(shipmentID string) error {
+func (srv *service) GetShipmentData(shipmentID string) (error, [][]byte) {
 	shipmentAddr, err := srv.repo.GetShipmentAddress(shipmentID)
 	if err != nil {
-		return err
+		fmt.Println("BLOCK GetShipmentAddress err: ", err)
+		return err, nil
 	}
 	if shipmentAddr == "" {
-		return errors.New("Shipment don't exists!!")
+		fmt.Println("BLOCK Shipment don't exists!!")
+		return errors.New("Shipment don't exists!!"), nil
 	}
 	history, err := receive(shipmentAddr, srv.endpoint)
 	if err != nil {
-		return err
+		fmt.Println("BLOCK receive err: ", err)
+		return err, nil
 	}
 
-	srv.eventHandler.DataFound(&pb.DataFoundEvent{
-		ShipmentID: shipmentID,
-		Data:       history,
-	})
-
-	return nil
+	return nil, history
 }
 
 func receive(address, endpoint string) ([][]byte, error) {
@@ -84,19 +77,21 @@ func receive(address, endpoint string) ([][]byte, error) {
 		buffers = append(buffers, bytes.Buffer{})
 		buffers[i].WriteString(tx.SignatureMessageFragment)
 	}
-
+	// fmt.Println("BLOCK BUFFER SIZE: ", len(buffers))
 	messages := make([][]byte, 0)
 	for _, buf := range buffers {
-		suf := strings.Replace(buf.String(), "9", "", -1)
+		r := regexp.MustCompile("\\d{2,}")
+		suf := r.ReplaceAllString(buf.String(), "")
 		msg, err := converter.TrytesToASCII(suf)
 		if err != nil {
+			fmt.Println("BLOCK TrytesToASCII err: ", err)
 			return nil, errors.New("TrytesToASCII: " + err.Error())
 		}
 		decompressData, err := compress.Decompress(msg)
 		if err != nil {
+			fmt.Println("BLOCK Decompress err: ", err)
 			return nil, errors.New("Decompress: " + err.Error())
 		}
-
 		messages = append(messages, decompressData)
 	}
 	return messages, nil

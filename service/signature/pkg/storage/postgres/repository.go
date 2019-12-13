@@ -1,6 +1,9 @@
 package postgres
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -23,13 +26,10 @@ type ProgressData struct {
 	DataHash        []byte
 }
 
-func NewStorage(host, port, user, dbname, password string) (*Storage, error) {
-	db, err := connect(host, port, user, dbname, password)
-	if err != nil {
+func NewStorage(db_string string) (*Storage, error) {
+	db := connect(db_string)
 
-		return nil, err
-	}
-	err = createSchema(db)
+	err := createSchema(db)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +40,21 @@ func Close(s *Storage) {
 	s.db.Close()
 }
 
-func connect(host, port, user, dbname, password string) (*gorm.DB, error) {
-	db, err := gorm.Open("postgres", "host="+host+" port="+port+" user="+user+" dbname="+dbname+" password="+password+" sslmode=disable")
-	if err != nil {
-		return nil, err
+func connect(db_string string) *gorm.DB {
+	i := 5
+	for i > 0 {
+		db, err := gorm.Open("postgres", db_string)
+		if err != nil {
+			fmt.Println("Can't connect to db, sleeping for 2 sec, err: ", err)
+			time.Sleep(2 * time.Second)
+			i--
+			continue
+		} else {
+			fmt.Println("Connected to storage")
+			return db
+		}
 	}
-	return db, nil
+	panic("Not connected to storage")
 }
 
 func createSchema(db *gorm.DB) error {

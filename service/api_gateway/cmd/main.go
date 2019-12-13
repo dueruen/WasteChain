@@ -15,11 +15,29 @@ import (
 	"google.golang.org/grpc"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	//Connect to Account service
-	accountConn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":8081"
+	}
+	acco := os.Getenv("ACCO")
+	if len(acco) == 0 {
+		acco = "account:50051"
+	}
+	sign := os.Getenv("SIGN")
+	if len(sign) == 0 {
+		sign = "signature:50053"
+	}
+	auth := os.Getenv("AUTH")
+	if len(auth) == 0 {
+		auth = "auth:50054"
+	}
+	ship := os.Getenv("SHIP")
+	if len(ship) == 0 {
+		ship = "shipment:50055"
+	}
+
+	accountConn, err := grpc.Dial(acco, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to account service %v", err)
 	}
@@ -28,7 +46,7 @@ func main() {
 	fmt.Printf("Connection to account service made\n")
 
 	//Connect to Signature service
-	signatureConn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	signatureConn, err := grpc.Dial(sign, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Signature service %v", err)
 	}
@@ -37,7 +55,7 @@ func main() {
 	fmt.Printf("Connection to Signature service made\n")
 
 	//Connect to Authentication service
-	authConn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
+	authConn, err := grpc.Dial(auth, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to Authentication service %v", err)
 	}
@@ -46,7 +64,7 @@ func main() {
 	fmt.Printf("Connection to Authentication service made\n")
 
 	//Connect to Shipment service
-	shipmentConn, err := grpc.Dial("localhost:50055", grpc.WithInsecure())
+	shipmentConn, err := grpc.Dial(ship, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to shipment service %v", err)
 	}
@@ -59,11 +77,6 @@ func main() {
 		SignatureClient:      signatureService,
 		AuthenticationClient: authService,
 		ShipmentClient:       shipmentService,
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
 	}
 
 	router := chi.NewRouter()

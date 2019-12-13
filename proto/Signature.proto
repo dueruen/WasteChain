@@ -5,8 +5,7 @@ service SignatureService {
     rpc SingleSign (SingleSignRequest) returns (SingleSignResponse);
     rpc StartDoubleSign (StartDoubleSignRequest) returns (StartDoubleSignResponse);
     rpc ContinueDoubleSign (ContinueDoubleSignRequest) returns (ContinueDoubleSignResponse);
-    rpc SingleVerify (SingleVerifyRequest) returns (SingleVerifyResponse);
-    rpc DoubleVerify (DoubleVerifyRequest) returns (DoubleVerifyResponse);
+    rpc VerifyHistory (VerifyHistoryRequest) returns (VerifyHistoryResponse);
     rpc CreateKeys (CreateKeysRequest) returns (CreateKeysResponse);
 }
 
@@ -25,6 +24,8 @@ message DoneEvent {
     bytes CurrentHolderSignature = 2;
     bytes NewHolderSignature = 3;
     string ShipmentID = 4;
+    bytes Data = 5;
+    int64 Time = 6;
 }
 
 message DoubleSignNeededEvent {
@@ -64,26 +65,18 @@ message ContinueDoubleSignResponse {
     string Error = 1;
 }
 
-message SingleVerifyRequest {
-    string UserID = 1;
-    bytes Data = 2;
-    bytes Signature = 3;
-}
-
-message SingleVerifyResponse {
-    bool Ok = 1;
-    string Error = 2;
-}
-
-message DoubleVerifyRequest {
+message VerifyHistoryItemData {
     bytes Data = 1;
-    string currentHolderID = 2;
+    string CurrentHolderID = 2;
     string NewHolderID = 3;
-    bytes CurrentHolderSignature = 4;
-    bytes NewHolderSignature = 5;
 }
 
-message DoubleVerifyResponse {
+message VerifyHistoryRequest {
+    string ShipmentID = 1;
+    repeated VerifyHistoryItemData history = 2;
+}
+
+message VerifyHistoryResponse {
     bool Ok = 1;
     string Error = 2;
 }

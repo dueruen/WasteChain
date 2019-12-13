@@ -1,9 +1,10 @@
-package signature
+package pkg
 
 import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 	"github.com/dueruen/WasteChain/service/signature/pkg/event/pub"
@@ -18,25 +19,44 @@ import (
 	"google.golang.org/grpc"
 )
 
-const port = ":50053"
-
 func Run() {
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50053"
+	}
+	dbString := os.Getenv("DB_STRING")
+	if dbString == "" {
+		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
+	}
+	block := os.Getenv("BLOC")
+	if block == "" {
+		block = "blockchain:50056"
+	}
+	qr := os.Getenv("QR")
+	if qr == "" {
+		qr = "localhost:50052"
+	}
+	nats := os.Getenv("NATS")
+	if nats == "" {
+		nats = "nats:4222"
+	}
+
 	//Create storage
-	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	storage, err := postgres.NewStorage(dbString)
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)
 	}
 
 	//Connect Pub to NATS
-	pubEventHandler, errPub := pub.NewEventHandler("localhost:4222")
+	pubEventHandler, errPub := pub.NewEventHandler(nats)
 	if errPub != nil {
 		log.Fatalf("Could not connect to NATS %v", errPub)
 	}
 	fmt.Printf("Pub Connection to NATS service made\n")
 
 	//Connect to QR Service
-	cc, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	cc, err := grpc.Dial(qr, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to QR service %v", err)
 	} else {
@@ -46,14 +66,25 @@ func Run() {
 
 	qrClient := pb.NewQRServiceClient(cc)
 
+	//Connect to Blockchain Service
+	ccBlock, err := grpc.Dial(block, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to Blockchain service %v", err)
+	} else {
+		fmt.Printf("Connection to Blockchain service made\n")
+	}
+	defer ccBlock.Close()
+
+	blockClient := pb.NewBlockchainServiceClient(ccBlock)
+
 	//Create Key Service
 	keySrv := key.NewService(storage)
 
 	//Create Sign Service
-	signSrv := sign.NewService(storage, keySrv, pubEventHandler, qrClient)
+	signSrv := sign.NewService(storage, keySrv, pubEventHandler, qrClient, blockClient)
 
 	//Connect Sub to NATS
-	errSub := sub.StartListening("localhost:4222", signSrv)
+	errSub := sub.StartListening(nats, signSrv)
 	if errSub != nil {
 		log.Fatalf("Could not connect to NATS %v", errSub)
 	}

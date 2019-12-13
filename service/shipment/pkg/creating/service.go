@@ -1,12 +1,12 @@
 package creating
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
+	"fmt"
 	"time"
 
 	pb "github.com/dueruen/WasteChain/service/shipment/gen/proto"
+	encode "github.com/dueruen/WasteChain/service/shipment/pkg/encode"
 )
 
 type Service interface {
@@ -23,28 +23,23 @@ type service struct {
 	accountClient pb.AccountServiceClient
 }
 
-type dataEvent struct {
-	Event      pb.ShipmentEvent
-	OwnerID    string
-	ReceiverID string
-	TimeStamp  string
-	Location   string
-}
-
 func NewService(createRepo Repository, signClient pb.SignatureServiceClient, accountClient pb.AccountServiceClient) Service {
 	return &service{createRepo, signClient, accountClient}
 }
 
 func (srv *service) CreateShipment(creationRequest *pb.CreateShipmentRequest) (string, error) {
-
-	res, _ := srv.accountClient.GetEmployee(context.Background(), &pb.GetEmployeeRequest{
+	fmt.Println("CREATE REQ: ", creationRequest.String())
+	res, err := srv.accountClient.GetEmployee(context.Background(), &pb.GetEmployeeRequest{
 		ID: creationRequest.CurrentHolderID,
 	})
+	if err != nil {
+		fmt.Println("CREATE ERR: ", err)
+	}
+	fmt.Println("CREATE: ", res)
 	employee := res.Employee
 
-	id, historyItem, error := srv.createRepo.CreateNewShipment(creationRequest, time.Now().String(), employee.CompanyID)
-	dataEvent := mapHistoryItemToDataEvent(historyItem)
-	byteEvent := dataEventToByteArray(dataEvent)
+	id, historyItem, err := srv.createRepo.CreateNewShipment(creationRequest, time.Now().String(), employee.CompanyID)
+	byteEvent := encode.ToByte(historyItem)
 
 	srv.signClient.SingleSign(context.Background(), &pb.SingleSignRequest{
 		Data:       byteEvent,
@@ -52,24 +47,6 @@ func (srv *service) CreateShipment(creationRequest *pb.CreateShipmentRequest) (s
 		Password:   creationRequest.Password,
 		ShipmentID: id,
 	})
-	return id, error
-}
-
-func mapHistoryItemToDataEvent(historyItem *pb.HistoryItem) *dataEvent {
-	newDataEvent := &dataEvent{
-		Event:      historyItem.Event,
-		OwnerID:    historyItem.OwnerID,
-		ReceiverID: historyItem.ReceiverID,
-		TimeStamp:  historyItem.TimeStamp,
-		Location:   historyItem.Location,
-	}
-
-	return newDataEvent
-}
-
-func dataEventToByteArray(event *dataEvent) []byte {
-	buf := new(bytes.Buffer)
-	enc := gob.NewEncoder(buf)
-	enc.Encode(event)
-	return buf.Bytes()
+	fmt.Println("CREATE: ", err)
+	return id, err
 }

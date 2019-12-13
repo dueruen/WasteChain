@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"net"
+	"os"
 
 	pb "github.com/dueruen/WasteChain/service/authentication/gen/proto"
 	"github.com/dueruen/WasteChain/service/authentication/pkg/auth"
@@ -15,10 +16,17 @@ import (
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 )
 
-const port = ":50054"
-
 func Run() {
-	storage, err := postgres.NewStorage("localhost", "5432", "root", "root", "root")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":50054"
+	}
+	dbString := os.Getenv("DB_STRING")
+	if dbString == "" {
+		dbString = "host=db port=5432 user=root dbname=root password=root sslmode=disable"
+	}
+
+	storage, err := postgres.NewStorage(dbString)
 	defer postgres.Close(storage)
 	if err != nil {
 		fmt.Printf("Storage err: %v\n", err)

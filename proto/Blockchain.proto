@@ -26,6 +26,7 @@ message GetShipmentDataRequest {
 
 message GetShipmentDataResponse {
     string Error = 1;
+    repeated bytes history = 2;
 }
 
 message PublishRequest {

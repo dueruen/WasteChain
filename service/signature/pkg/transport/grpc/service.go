@@ -12,8 +12,7 @@ type server struct {
 	singleSign         kitgrpc.Handler
 	startDoubleSign    kitgrpc.Handler
 	continueDoubleSign kitgrpc.Handler
-	singleVerify       kitgrpc.Handler
-	doubleVerify       kitgrpc.Handler
+	verifyHistory      kitgrpc.Handler
 	createKeys         kitgrpc.Handler
 }
 
@@ -28,11 +27,8 @@ func NewGRPCServer(endpoints transport.Endpoints, options []kitgrpc.ServerOption
 		continueDoubleSign: kitgrpc.NewServer(
 			endpoints.ContinueDoubleSign, decodeContinueDoubleSignRequest, encodeContinueDoubleSignResponse,
 		),
-		singleVerify: kitgrpc.NewServer(
-			endpoints.SingleVerify, decodeSingleVerifyRequest, encodeSingleVerifyResponse,
-		),
-		doubleVerify: kitgrpc.NewServer(
-			endpoints.DoubleVerify, decodeDoubleVerifyRequest, encodeDoubleVerifyResponse,
+		verifyHistory: kitgrpc.NewServer(
+			endpoints.VerifyHistory, decodeVerifyHistoryRequest, encodeVerifyHistoryResponse,
 		),
 		createKeys: kitgrpc.NewServer(
 			endpoints.CreateKeys, decodeCreateKeysRequest, encodeCreateKeysResponse,
@@ -88,36 +84,20 @@ func encodeContinueDoubleSignResponse(_ context.Context, response interface{}) (
 	return response.(*pb.ContinueDoubleSignResponse), nil
 }
 
-func (srv *server) SingleVerify(ctx context.Context, req *pb.SingleVerifyRequest) (*pb.SingleVerifyResponse, error) {
-	_, rep, err := srv.singleVerify.ServeGRPC(ctx, req)
+func (srv *server) VerifyHistory(ctx context.Context, req *pb.VerifyHistoryRequest) (*pb.VerifyHistoryResponse, error) {
+	_, rep, err := srv.verifyHistory.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*pb.SingleVerifyResponse), nil
+	return rep.(*pb.VerifyHistoryResponse), nil
 }
 
-func decodeSingleVerifyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	return request.(*pb.SingleVerifyRequest), nil
+func decodeVerifyHistoryRequest(_ context.Context, request interface{}) (interface{}, error) {
+	return request.(*pb.VerifyHistoryRequest), nil
 }
 
-func encodeSingleVerifyResponse(_ context.Context, response interface{}) (interface{}, error) {
-	return response.(*pb.SingleVerifyResponse), nil
-}
-
-func (srv *server) DoubleVerify(ctx context.Context, req *pb.DoubleVerifyRequest) (*pb.DoubleVerifyResponse, error) {
-	_, rep, err := srv.doubleVerify.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*pb.DoubleVerifyResponse), nil
-}
-
-func decodeDoubleVerifyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	return request.(*pb.DoubleVerifyRequest), nil
-}
-
-func encodeDoubleVerifyResponse(_ context.Context, response interface{}) (interface{}, error) {
-	return response.(*pb.DoubleVerifyResponse), nil
+func encodeVerifyHistoryResponse(_ context.Context, response interface{}) (interface{}, error) {
+	return response.(*pb.VerifyHistoryResponse), nil
 }
 
 func (srv *server) CreateKeys(ctx context.Context, req *pb.CreateKeysRequest) (*pb.CreateKeysResponse, error) {
