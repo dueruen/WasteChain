@@ -46,7 +46,7 @@ export function GetCompany(companyID)  {
  */
 const CREATE_COMPANY =
 gql`
-    mutation CreateCompany($authData: AuthData!,$name: String!, $address: CreateAddress!, $contactInfo: CreateContactInfo!)
+    mutation CreateCompany($authData: AuthData!,$name: String!, $address: CreateAddress!, $contactinfo: CreateContactInfo!)
     {createCompany(company:
         {
             authData: $authData,
@@ -54,7 +54,7 @@ gql`
             address: $address,
             contactinfo: $contactinfo
         }
-    )}
+    ){id}}
 `;
 
 /**
@@ -84,7 +84,7 @@ gql`
             name: $name,
             companyID: $companyID,
         }
-    )}
+    ){id}}
 `;
 
 /**

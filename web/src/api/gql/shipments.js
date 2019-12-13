@@ -54,7 +54,7 @@ gql`
             location: $location,
             password: $password
         }
-    )ID}
+    )}
 `;
 
 /**
