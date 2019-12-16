@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
-import { useQuery, useMutation, ApolloProvider } from '@apollo/react-hooks';
-
+import { useQuery, useMutation } from '@apollo/react-hooks';
 
 /**
  * Query to list all shipments
