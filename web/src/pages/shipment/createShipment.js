@@ -1,11 +1,6 @@
 import React, { Component } from 'react'
-import { CreateShipment } from '../../api/gql/shipments'
 import gql from "graphql-tag";
-import { useQuery, useMutation } from '@apollo/react-hooks';
-import client from '../../api/gql/ApolloClient'
 import { Mutation } from 'react-apollo'
-//import { withRouter } from 'react-router-dom'
-
 
 /**
  * Query to create a shipment
@@ -35,41 +30,55 @@ class CreateShipmentPage extends Component {
   render() {
     const { currentHolderID, wasteType, location, password } = this.state
     return (
-      <div>
-        <div className="flex flex-column mt3">
-          <input
-            className="mb2"
-            value={currentHolderID}
-            onChange={e => this.setState({ currentHolderID: e.target.value })}
-            type="text"
-            placeholder="ID"
-          />
-          <input
-            className="mb2"
-            value={password}
-            onChange={e => this.setState({ password: e.target.value })}
-            type="password"
-            placeholder="Password"
-          />
-          <input
-            className="mb2"
-            value={location}
-            onChange={e => this.setState({ location: e.target.value })}
-            type="text"
-            placeholder="Location"
-          />
-          <input
-            className="mb2"
-            value={wasteType}
-            onChange={e => this.setState({ wasteType: e.target.value })}
-            type="text"
-            placeholder="wastetype"
-          />
-        </div>
-        <Mutation mutation={CREATE_SHIPMENT} variables={{ currentHolderID, password, location, wasteType }}>
-            {createShipment => <button onClick={createShipment}>Submit</button>}
-        </Mutation>
-      </div>
+        <section>
+            <h2>Create Shipment</h2>
+            <form>
+                <label>
+                    Employee ID
+                    <input
+                    value={currentHolderID}
+                    onChange={e => this.setState({ currentHolderID: e.target.value })}
+                    type="text"
+                    required
+                    />
+                </label>
+                <br/>
+                <label>
+                    Password
+                    <input
+                    value={password}
+                    onChange={e => this.setState({ password: e.target.value })}
+                    type="password"
+                    required
+                    />
+                </label>
+                <br/>
+                <label>
+                    Location
+                    <input
+                    value={location}
+                    onChange={e => this.setState({ location: e.target.value })}
+                    type="text"
+                    required
+                    />
+                </label>
+                <br/>
+                <label>
+                    Waste Type
+                    <input
+                    value={wasteType}
+                    onChange={e => this.setState({ wasteType: e.target.value })}
+                    type="text"
+                    required
+                    />
+                </label>
+            </form>
+            <br/>
+            <Mutation mutation={CREATE_SHIPMENT} variables={{ currentHolderID, password, location, wasteType }}>
+                {createShipment => <button onClick={createShipment}>Create Shipment</button>}
+            </Mutation>
+
+        </section>
     )
   }
 }

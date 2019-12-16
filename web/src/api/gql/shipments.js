@@ -28,7 +28,7 @@ gql`
 /**
  * Query to create a shipment
  */
-const CREATE_SHIPMENT =
+export const CREATE_SHIPMENT =
 gql`
     mutation CreateShipment($wasteType: String!, $currentHolderID: String!, $location: String!, $password: String!)
     {createShipment(request:
