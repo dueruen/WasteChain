@@ -2,76 +2,76 @@ import React, { Component } from 'react'
 import { CreateShipment } from '../../api/gql/shipments'
 import gql from "graphql-tag";
 import { useQuery, useMutation } from '@apollo/react-hooks';
+import client from '../../api/gql/ApolloClient'
+import { Mutation } from 'react-apollo'
 //import { withRouter } from 'react-router-dom'
 
-//export default withRouter(class CreateShipment extends Component {
+
+/**
+ * Query to create a shipment
+ */
+const CREATE_SHIPMENT =
+gql`
+    mutation CreateShipment($wasteType: String!, $currentHolderID: String!, $location: String!, $password: String!)
+    {createShipment(request:
+        {
+            wasteType: $wasteType,
+            currentHolderID: $currentHolderID,
+            location: $location,
+            password: $password
+        }
+    )}
+`;
 
 
+class CreateShipmentPage extends Component {
+  state = {
+    wasteType: '',
+    currentHolderID: '',
+    location: '',
+    password: ''
+  }
 
-export default class CreateShipmentPage extends Component {
-    state = {
-        currentHolderID: "",
-        wasteType: "",
-        location: "",
-        password: ""
-    }
-
-    /**
-     * Sets state data when changes are made in text-inputs
-     * @param {Event} event
-     */
-  handleChange = event => {
-    this.setState({
-      [event.target.name]: event.target.value
-    })
+  render() {
+    const { currentHolderID, wasteType, location, password } = this.state
+    return (
+      <div>
+        <div className="flex flex-column mt3">
+          <input
+            className="mb2"
+            value={currentHolderID}
+            onChange={e => this.setState({ currentHolderID: e.target.value })}
+            type="text"
+            placeholder="ID"
+          />
+          <input
+            className="mb2"
+            value={password}
+            onChange={e => this.setState({ password: e.target.value })}
+            type="password"
+            placeholder="Password"
+          />
+          <input
+            className="mb2"
+            value={location}
+            onChange={e => this.setState({ location: e.target.value })}
+            type="text"
+            placeholder="Location"
+          />
+          <input
+            className="mb2"
+            value={wasteType}
+            onChange={e => this.setState({ wasteType: e.target.value })}
+            type="text"
+            placeholder="wastetype"
+          />
+        </div>
+        <Mutation mutation={CREATE_SHIPMENT} variables={{ currentHolderID, password, location, wasteType }}>
+            {createShipment => <button onClick={createShipment}>Submit</button>}
+        </Mutation>
+      </div>
+    )
+  }
 }
 
-
-    render() {
-        return(
-            <section>
-                <h2>Create Waste Shipment</h2>
-                <form onSubmit={this.submitHandler}>
-                    <label>
-                        User ID
-                        <input
-                        type="text"
-                        name="currentHolderID"
-                        onChange={this.handleChange}
-                        required>
-                        </input>
-                    </label>
-                    <label>
-                        Password
-                        <input
-                        type="password"
-                        name="password"
-                        onChange={this.handleChange}
-                        required>
-                        </input>
-                    </label>
-                    <label>
-                        Waste Type
-                        <input
-                        type="text"
-                        name="wasteType"
-                        onChange={this.handleChange}
-                        required>
-                        </input>
-                    </label>
-                    <label>
-                        Location
-                        <input
-                        type="text"
-                        name="location"
-                        onChange={this.handleChange}
-                        required>
-                        </input>
-                    </label>
-                </form>
-                <input type="submit" value="Create Shipment" onClick={this.submitHandler} />
-            </section>
-        )
-    }
-
-}
+export default CreateShipmentPage
