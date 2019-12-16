@@ -11,13 +11,7 @@ const LIST_ALL_SHIPMENTS =
     }}
 `;
 
-/**
- * Function executing query for listing all shipments
- */
-export function ListAllShipments()  {
-    const data = useQuery(LIST_ALL_SHIPMENTS);
-    return data
-}
+
 
 
 /**
@@ -30,15 +24,6 @@ gql`
     wasteType, id, currentHolderID, producingCompanyID, history{ownerID, event, receiverID}}}
 `;
 
-
-/**
- * Function executing query to get shipment details
- * @param {string} shipmentID
- */
-export function GetShipmentDetails(shipmentID)  {
-    const data = useQuery(GET_SHIPMENT_DETAILS, { variables: {shipmentID}});
-    return data
-}
 
 /**
  * Query to create a shipment
@@ -56,17 +41,6 @@ gql`
     )}
 `;
 
-/**
- * Creates a new shipment
- * @param {string} wasteType
- * @param {string} currentHolderID
- * @param {string} location
- * @param {string} password
- */
-export function CreateShipment(wasteType, currentHolderID, location, password)  {
-    const mutation = useMutation(CREATE_SHIPMENT, { variables: {wasteType, currentHolderID, location, password}});
-    mutation[0].call()
-}
 
 /**
  * Mutation to transfer a shipment
@@ -86,20 +60,6 @@ gql`
 `;
 
 /**
- * Mutation function to transfer a shipment
- * @param {String} shipmentID
- * @param {String} ownerID
- * @param {String} receiverID
- * @param {String} location
- * @param {String} password
- */
-export function TransferShipment(shipmentID, ownerID, receiverID, location, password)  {
-    const mutation = useMutation(TRANSFER_SHIPMENT, { variables: {shipmentID, ownerID, receiverID, location, password}});
-    mutation[0].call()
-}
-
-
-/**
  * Mutation to process a shipment
  */
 const PROCESS_SHIPMENT =
@@ -115,15 +75,4 @@ gql`
     )}
 `;
 
-/**
- * Mutation function to process a shipment
- * @param {String} shipmentID
- * @param {String} ownerID
- * @param {String} location
- * @param {String} password
- */
-export function ProcessShipment(shipmentID, ownerID, location, password)  {
-    const mutation = useMutation(PROCESS_SHIPMENT, { variables: {shipmentID, ownerID, location, password}});
-    mutation[0].call()
-}
 
