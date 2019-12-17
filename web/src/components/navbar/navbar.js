@@ -25,6 +25,9 @@ export default class Navbar extends Component {
                 <LinkWrapper>
                     <NavLink href="/my-shipments/">My Shipments</NavLink>
                 </LinkWrapper>
+                <LinkWrapper>
+                    <NavLink href="/shipment/create/">Create Shipment</NavLink>
+                </LinkWrapper>
             </RightSide>
         )
     }

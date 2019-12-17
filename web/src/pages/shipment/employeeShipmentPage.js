@@ -31,7 +31,7 @@ class EmployeeShipmentPage extends Component {
                     return (
                         <section>
                             <h2>My Shipments</h2>
-                            {shipmentsToRender.map(shipment => <ShipmentLink key={shipment.id} id={shipment.id}/>)}
+                            {shipmentsToRender.slice(0).reverse().map(shipment => <ShipmentLink key={shipment.id} id={shipment.id}/>)}
                         </section>
                     )
                 }}

@@ -62,3 +62,15 @@ button:hover {
     cursor: pointer;
     color: #ffff;
 }
+.shipmentlink,
+.historyelement {
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 10px;
+    border-color: var(--main-color);
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+
+}
