@@ -34,7 +34,7 @@ input{
 section {
     padding: 0px var(--spacing);
     max-width: var(--content-max-width);
-    margin: 0px auto;
+
 }
 
 section:last-of-type {
