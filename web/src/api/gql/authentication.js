@@ -10,12 +10,4 @@ const LOGIN =
     {login(request: {username: $username, password: $password})}
 `;
 
-/**
- * Function to log in
- * @param {String} username
- * @param {String} password
- */
-export function Login(username, password) {
-    const res = useMutation(LOGIN, {variables: {username, password}})
-    res[0].call()
-}
+

@@ -4,8 +4,8 @@ import { PageContainer } from '../components';
 
 import LandingPage from './landingPage'
 import LoginPage from './login'
-import CreateAccountPage from './createAccount'
-import CompaniesPage from './companies'
+import CreateEmployeePage from './createAccount'
+import CreateShipmentPage from './shipment/createShipment'
 
 export default function Pages() {
     return (
@@ -14,8 +14,8 @@ export default function Pages() {
                 <Router primary={false} component={Fragment}>
                     <LandingPage path="/" />
                     <LoginPage path="login" />
-                    <CreateAccountPage path="create" />
-                    <CompaniesPage path="companies" />
+                    <CreateEmployeePage path="createemployee" />
+                    <CreateShipmentPage path="createshipment" />
                 </Router>
             </PageContainer>
         </Fragment>

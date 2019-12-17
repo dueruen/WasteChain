@@ -30,7 +30,7 @@ const NavWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     padding: 5px 10px 5px 20px;
-    background-color: red;
+    background-color: var(--main-color);
 `
 
 const LeftSide = styled.div`
@@ -42,6 +42,8 @@ const LeftSide = styled.div`
 
 const BrandWrapper = styled.div`
     font-size: 32px;
+    color: #ffff;
+    font-weight:bold;
 `
 
 const RightSide = styled.div`
@@ -56,7 +58,7 @@ const LinkWrapper = styled.div`
     text-align: center;
 `
 const NavLink = styled.a`
-    color: black;
+    color: #ffff;
     text-decoration: none;
     transition: color 0.5s;
 `
