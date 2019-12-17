@@ -8,6 +8,7 @@ import CreateEmployeePage from './createAccount'
 import CreateCompanyPage from './createCompany'
 import CreateShipmentPage from './shipment/createShipment'
 import DeatailedShipmentPage from './shipment/shipmentDetails'
+import EmployeeShipmentPage from './shipment/employeeShipmentPage'
 import NotFound from '../pages/notFound'
 
 export default function Pages() {
@@ -18,7 +19,7 @@ export default function Pages() {
                     <LandingPage path="/" />
                     <LoginPage path="login" />
                     <CreateEmployeePage path="employee/create" />
-                    <CreateEmployeePage path="employee/shipments/:employeeID" />
+                    <EmployeeShipmentPage path="my-shipments/" />
                     <CreateCompanyPage path="company/create" />
                     <CreateShipmentPage path="shipment/create" />
                     <DeatailedShipmentPage path="shipment/:shipmentID"/>
