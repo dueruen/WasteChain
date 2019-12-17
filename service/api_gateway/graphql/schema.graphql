@@ -19,7 +19,7 @@ type Mutation {
     #SignatureService
     continueDoubleSign(request: ContinueDoubleSignRequest!): String!
     #Authentication
-    login(request: LoginRequest!): String! #Token
+    login(request: LoginRequest!): LoginResponse!
     #Shipment
     createShipment(request: CreateShipmentRequest!): ID!
     transferShipment(request: TransferShipmentRequest!): String!
@@ -104,6 +104,11 @@ input Credentials {
 input LoginRequest {
     username: String!
     password: String!
+}
+
+type LoginResponse {
+    token: String!
+    id: String!
 }
 
 input CreateShipmentRequest {

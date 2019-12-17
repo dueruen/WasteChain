@@ -74,12 +74,12 @@ func (r *mutationResolver) ContinueDoubleSign(ctx context.Context, request pb.Co
 }
 
 //Mutation Resolvers for Authetication service
-func (r *mutationResolver) Login(ctx context.Context, request pb.LoginRequest) (string, error) {
+func (r *mutationResolver) Login(ctx context.Context, request pb.LoginRequest) (*pb.LoginResponse, error) {
 	res, err := r.AuthenticationClient.Login(ctx, &request)
 	if err != nil {
-		return "", err
+		return &pb.LoginResponse{}, err
 	}
-	return res.Token, nil
+	return &pb.LoginResponse{Token: res.Token, Id: res.Id}, nil
 }
 
 //Mutation Resolvers for Shipment service

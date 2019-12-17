@@ -18,7 +18,7 @@ type Service interface {
 
 type Repository interface {
 	SaveCredentials(userID, hashedPassword, username string) error
-	GetPassword(username string) (string, error)
+	GetPassword(username string) (id, passward string, err error)
 }
 
 type service struct {
@@ -41,7 +41,7 @@ func (srv *service) CreateCredentials(req *pb.CreateCredentialsRequest) (res *pb
 }
 
 func (srv *service) Login(req *pb.LoginRequest) (res *pb.LoginResponse) {
-	hashedPassword, err := srv.repo.GetPassword(req.Username)
+	id, hashedPassword, err := srv.repo.GetPassword(req.Username)
 	if err != nil {
 		return &pb.LoginResponse{
 			Error: err.Error(),
@@ -55,12 +55,13 @@ func (srv *service) Login(req *pb.LoginRequest) (res *pb.LoginResponse) {
 
 	return &pb.LoginResponse{
 		Token: generateToken(req.Username),
+		Id:    id,
 	}
 }
 
 func (srv *service) Validate(req *pb.ValidateRequest) (res *pb.ValidateResponse) {
 	username := decodeToken(req.Token)
-	_, err := srv.repo.GetPassword(username)
+	_, _, err := srv.repo.GetPassword(username)
 	if err != nil {
 		return &pb.ValidateResponse{
 			Error: errors.New("Not valid").Error(),
