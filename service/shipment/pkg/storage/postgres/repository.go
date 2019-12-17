@@ -208,7 +208,7 @@ func (storage *Storage) LatestHistoryEventIsPublished(shipmentID string) error {
 
 func (storage *Storage) shipmentHasBeenProcessed(shipmentID string) bool {
 	var hi pb.HistoryItem
-	storage.db.Order("time_stamp desc").First(&hi)
+	storage.db.Where("shipment_id = ?", shipmentID).Order("time_stamp desc").First(&hi)
 
 	if hi.Event == 2 {
 		return true
