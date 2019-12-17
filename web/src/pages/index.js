@@ -8,6 +8,7 @@ import CreateEmployeePage from './createAccount'
 import CreateCompanyPage from './createCompany'
 import CreateShipmentPage from './shipment/createShipment'
 import DeatailedShipmentPage from './shipment/shipmentDetails'
+import NotFound from '../pages/notFound'
 
 export default function Pages() {
     return (
@@ -16,10 +17,11 @@ export default function Pages() {
                 <Router primary={false} component={Fragment}>
                     <LandingPage path="/" />
                     <LoginPage path="login" />
-                    <CreateEmployeePage path="createemployee" />
-                    <CreateCompanyPage path="createcompany" />
-                    <CreateShipmentPage path="createshipment" />
+                    <CreateEmployeePage path="employee/create" />
+                    <CreateCompanyPage path="company/create" />
+                    <CreateShipmentPage path="shipment/create" />
                     <DeatailedShipmentPage path="shipment/:shipmentID"/>
+                    <NotFound default/>
                 </Router>
             </PageContainer>
         </Fragment>
