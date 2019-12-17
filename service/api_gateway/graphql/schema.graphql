@@ -7,7 +7,7 @@ type Query {
     getEmployee(employeeID: ID!): Employee!
     #Shipment
     listAllShipments: [Shipment!]!
-    listUsersShipments: [Shipment!]!
+    listUsersShipments(userID: String!): [Shipment!]!
     getShipmentDetails(shipmentID: ID!): Shipment!
 }
 

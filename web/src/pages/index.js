@@ -18,6 +18,7 @@ export default function Pages() {
                     <LandingPage path="/" />
                     <LoginPage path="login" />
                     <CreateEmployeePage path="employee/create" />
+                    <CreateEmployeePage path="employee/shipments/:employeeID" />
                     <CreateCompanyPage path="company/create" />
                     <CreateShipmentPage path="shipment/create" />
                     <DeatailedShipmentPage path="shipment/:shipmentID"/>
