@@ -34,7 +34,7 @@ func Run() {
 	}
 	qr := os.Getenv("QR")
 	if qr == "" {
-		qr = "localhost:50052"
+		qr = "qr:50052"
 	}
 	nats := os.Getenv("NATS")
 	if nats == "" {

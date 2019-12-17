@@ -58,7 +58,8 @@ message TransferShipmentRequest {
 
 message TransferShipmentResponse {
     string error = 1;
-
+    bytes QRCode = 2;
+    string ContinueID = 3;
 }
 
 message ProcessShipmentRequest {

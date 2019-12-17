@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	TransferShipment(*pb.TransferShipmentRequest) error
+	TransferShipment(*pb.TransferShipmentRequest) (*pb.TransferShipmentResponse, error)
 }
 
 type Repository interface {
@@ -25,18 +25,26 @@ func NewService(transferingRepo Repository, signClient pb.SignatureServiceClient
 	return &service{transferingRepo, signClient}
 }
 
-func (srv *service) TransferShipment(transferRequest *pb.TransferShipmentRequest) error {
-	historyItem, error := srv.transferingRepo.TransferShipment(transferRequest, time.Now().String())
-	if error != nil {
-		return error
+func (srv *service) TransferShipment(transferRequest *pb.TransferShipmentRequest) (*pb.TransferShipmentResponse, error) {
+	historyItem, err := srv.transferingRepo.TransferShipment(transferRequest, time.Now().String())
+
+	if err != nil {
+		return &pb.TransferShipmentResponse{Error: err.Error()}, err
 	}
 	byteEvent := encode.ToByte(historyItem)
 
-	srv.signClient.StartDoubleSign(context.Background(), &pb.StartDoubleSignRequest{
+	res, err := srv.signClient.StartDoubleSign(context.Background(), &pb.StartDoubleSignRequest{
 		Data:                  byteEvent,
 		CurrentHolderID:       transferRequest.OwnerID,
 		CurrentHolderPassword: transferRequest.Password,
 		ShipmentID:            transferRequest.ShipmentID,
 	})
-	return nil
+	if err != nil {
+		return &pb.TransferShipmentResponse{Error: err.Error()}, err
+	}
+
+	return &pb.TransferShipmentResponse{
+		ContinueID: res.ContinueID,
+		QRCode:     res.QRCode,
+	}, nil
 }

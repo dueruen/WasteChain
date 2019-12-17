@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	b64 "encoding/base64"
 	"errors"
 
 	pb "github.com/dueruen/WasteChain/service/api_gateway/gen/proto"
@@ -12,6 +13,7 @@ type Resolver struct {
 	SignatureClient      pb.SignatureServiceClient
 	AuthenticationClient pb.AuthenticationServiceClient
 	ShipmentClient       pb.ShipmentServiceClient
+	QRClient             pb.QRServiceClient
 }
 
 func (r *Resolver) HistoryItem() HistoryItemResolver {
@@ -23,6 +25,9 @@ func (r *Resolver) Mutation() MutationResolver {
 }
 func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
+}
+func (r *Resolver) TransferShipmentResponse() TransferShipmentResponseResolver {
+	return &transferShipmentResponseResolver{r}
 }
 
 type historyItemResolver struct{ *Resolver }
@@ -91,12 +96,12 @@ func (r *mutationResolver) CreateShipment(ctx context.Context, request pb.Create
 	return res.ID, nil
 }
 
-func (r *mutationResolver) TransferShipment(ctx context.Context, request pb.TransferShipmentRequest) (string, error) {
-	_, err := r.ShipmentClient.TransferShipment(ctx, &request)
+func (r *mutationResolver) TransferShipment(ctx context.Context, request pb.TransferShipmentRequest) (*pb.TransferShipmentResponse, error) {
+	res, err := r.ShipmentClient.TransferShipment(ctx, &request)
 	if err != nil {
-		return err.Error(), err
+		return &pb.TransferShipmentResponse{Error: err.Error()}, err
 	}
-	return "", nil
+	return res, nil
 }
 
 func (r *mutationResolver) ProcessShipment(ctx context.Context, request pb.ProcessShipmentRequest) (string, error) {
@@ -160,4 +165,20 @@ func (r *queryResolver) ListAllShipments(ctx context.Context) ([]*pb.Shipment, e
 		return nil, err
 	}
 	return res.ShipmentList, nil
+}
+
+func (r *queryResolver) ToQr(ctx context.Context, data string) (string, error) {
+	res, err := r.QRClient.CreateQRCode(ctx, &pb.CreateQRRequest{DataString: data})
+	if err != nil {
+		return "", err
+	}
+	base64 := b64.StdEncoding.EncodeToString(res.QRCode)
+	return base64, nil
+}
+
+type transferShipmentResponseResolver struct{ *Resolver }
+
+func (r *transferShipmentResponseResolver) QRCode(ctx context.Context, obj *pb.TransferShipmentResponse) (string, error) {
+	base64 := b64.StdEncoding.EncodeToString(obj.QRCode)
+	return base64, nil
 }

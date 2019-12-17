@@ -53,6 +53,9 @@ message StartDoubleSignRequest {
 }
 message StartDoubleSignResponse {
     string Error = 1;
+    string CurrentHolderID = 2;
+    bytes QRCode = 3;
+    string ContinueID = 4;
 }
 
 message ContinueDoubleSignRequest {

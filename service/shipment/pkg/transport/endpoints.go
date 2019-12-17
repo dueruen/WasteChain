@@ -41,8 +41,11 @@ func makeCreateShipmentEndpoint(service creating.Service) endpoint.Endpoint {
 func makeTransferShipmentEndpoint(service transfering.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*pb.TransferShipmentRequest)
-		service.TransferShipment(req)
-		return &pb.TransferShipmentResponse{}, nil
+		res, err := service.TransferShipment(req)
+		if err != nil {
+			return &pb.TransferShipmentResponse{Error: err.Error()}, err
+		}
+		return res, nil
 	}
 }
 
