@@ -7,7 +7,9 @@ import LoginPage from './login'
 import CreateEmployeePage from './createAccount'
 import CreateCompanyPage from './createCompany'
 import CreateShipmentPage from './shipment/createShipment'
+import StartTransferShipmentPage from './shipment/startTransferShipment'
 import DeatailedShipmentPage from './shipment/shipmentDetails'
+import GetIDPage from './getID';
 
 export default function Pages() {
     return (
@@ -19,7 +21,9 @@ export default function Pages() {
                     <CreateEmployeePage path="createemployee" />
                     <CreateCompanyPage path="createcompany" />
                     <CreateShipmentPage path="createshipment" />
+                    <StartTransferShipmentPage path="starttransfer" />
                     <DeatailedShipmentPage path="shipment/:shipmentID"/>
+                    <GetIDPage path="getID" />
                 </Router>
             </PageContainer>
         </Fragment>
