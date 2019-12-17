@@ -1655,9 +1655,6 @@
     "@webassemblyjs/wast-parser" "1.8.5"
     "@xtuc/long" "4.2.2"
 
-<<<<<<< HEAD
-"@wry/equality@^0.1.9":
-=======
 "@wry/context@^0.4.0":
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/@wry/context/-/context-0.4.4.tgz#e50f5fa1d6cfaabf2977d1fda5ae91717f8815f8"
@@ -1667,7 +1664,6 @@
     tslib "^1.9.3"
 
 "@wry/equality@^0.1.2", "@wry/equality@^0.1.9":
->>>>>>> master
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/@wry/equality/-/equality-0.1.9.tgz#b13e18b7a8053c6858aa6c85b54911fb31e3a909"
   integrity sha512-mB6ceGjpMGz1ZTza8HYnrPGos2mC6So4NhS1PtZ8s4Qt0K7fBiIGhpSxUbQmhwcSWE3no+bYxmI2OL6KuXYmoQ==
@@ -8483,14 +8479,6 @@ react-error-overlay@^6.0.3:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.3.tgz#c378c4b0a21e88b2e159a3e62b2f531fd63bf60d"
   integrity sha512-bOUvMWFQVk5oz8Ded9Xb7WVdEi3QGLC8tH7HmYP0Fdp4Bn3qw0tRFmr5TW6mvahzvmrK4a6bqWGfCevBflP+Xw==
 
-<<<<<<< HEAD
-=======
-react-hook-form@^3.28.7:
-  version "3.29.3"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-3.29.3.tgz#dd71c2f0c31ab891a51dbfc5a8c10ed750d84441"
-  integrity sha512-KUZqTTlNp7z1QXN99mMdzjWSEsZNw4Z27K8VFR0Ofkpf8ldXdywpn/aBbSnow6156Vrlo0BnhTeu3ayNyPIU2Q==
-
->>>>>>> master
 react-is@^16.7.0:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
@@ -9865,11 +9853,7 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
-<<<<<<< HEAD
-ts-invariant@^0.4.4:
-=======
 ts-invariant@^0.4.0, ts-invariant@^0.4.4:
->>>>>>> master
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.4.4.tgz#97a523518688f93aafad01b0e80eb803eb2abd86"
   integrity sha512-uEtWkFM/sdZvRNNDL3Ehu4WVpwaulhwQszV8mrtcdeE8nN00BV9mAmQ88RkrBhFgl9gMgvjJLAQcZbnPXI9mlA==
