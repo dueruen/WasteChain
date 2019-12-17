@@ -64,11 +64,11 @@ func (storage *Storage) SaveCredentials(userID, hashedPassword, username string)
 	return nil
 }
 
-func (storage *Storage) GetPassword(username string) (string, error) {
+func (storage *Storage) GetPassword(username string) (id, passward string, err error) {
 	var credentials pb.Credentials
 	storage.db.Where("username = ?", username).First(&credentials)
 	if credentials.Username == "" {
-		return "", errors.New("No such thing")
+		return "", "", errors.New("No such thing")
 	}
-	return credentials.Password, nil
+	return credentials.UserID, credentials.Password, nil
 }
