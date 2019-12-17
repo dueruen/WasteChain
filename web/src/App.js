@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react';
-// import './App.css';
+import React from 'react';
 
-import { ApolloProvider, useQuery } from '@apollo/react-hooks';
+import { ApolloProvider } from '@apollo/react-hooks';
 import gqlclient from './api/gql/ApolloClient'
 import Pages from './pages';
 
@@ -9,7 +8,6 @@ import Pages from './pages';
 const App = () => {
     return (
         <ApolloProvider client={gqlclient}>
-            {/* <IsLoggedIn /> */}
             <Pages></Pages>
         </ApolloProvider>
     )
