@@ -29,6 +29,7 @@ message LoginRequest {
 message LoginResponse {
     string Error = 1;
     string Token = 2;
+    string Id = 3;
 }
 
 message ValidateRequest {
