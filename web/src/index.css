@@ -41,6 +41,11 @@ section:last-of-type {
     margin-bottom: var(--spacing);
 }
 
+input[type="text"], input[type="password"] {
+    border-radius: 4px;
+    padding: 5px;
+}
+
 button {
     border-style: solid;
     border-radius: 4px;;
@@ -48,6 +53,7 @@ button {
     background-color: #ffff;
     min-height: 45px;
     min-width: 150px;
+    font-weight: bold;
 }
 
 button:hover {
