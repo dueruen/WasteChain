@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import gql from "graphql-tag";
 import { Query } from 'react-apollo'
 import ShipmentLink from './shipmentLink/shipmentLink'
+import ReactLoading from 'react-loading';
 
 
 /**
@@ -21,7 +22,7 @@ class AllShipmentsList extends Component {
         return(
             <Query query={LIST_ALL_SHIPMENTS}>
                 {({ loading, error, data }) => {
-                    if (loading) return <div>Fetching</div>
+                    if (loading) return <ReactLoading type={'spin'}color={'#8bb849'} height={'20%'} width={'20%'}/>
                     if (error) return <div>Error</div>
 
                     const shipmentsToRender = data.listAllShipments

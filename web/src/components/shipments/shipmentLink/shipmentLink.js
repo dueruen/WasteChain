@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import styled from '@emotion/styled'
 import './shipmentLink.css'
+import { navigate } from "@reach/router"
 
 class ShipmentLink extends Component {
 
     onClick = event => {
-        alert("TODO: Transfer to detailed shipment view")
+        navigate(`/shipment/${this.props.id}`)
     }
 
     render() {
