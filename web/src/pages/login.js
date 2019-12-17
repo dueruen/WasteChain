@@ -5,7 +5,10 @@ import { LoginForm } from '../components';
 const LoginPage = () => {
     return (
         <Fragment>
-            <LoginForm/>
+            {/* <LoginForm/> */}
+            <h1>Login coming soon</h1>
+            <div><a href="createemployee">Create Employee</a></div>
+            <div><a href="createcompany">Create Company</a></div>
         </Fragment>
     );
 }
