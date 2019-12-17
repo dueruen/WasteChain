@@ -11,7 +11,7 @@ import ReactLoading from 'react-loading';
 const LIST_ALL_SHIPMENTS =
     gql`
     query {listAllShipments {
-    id
+    id, wasteType
     }}
 `;
 
@@ -30,7 +30,11 @@ class AllShipmentsList extends Component {
                     return (
                         <section>
                             <h2>Latest Shipments</h2>
-                            {shipmentsToRender.slice(0).reverse().map(shipment => <ShipmentLink key={shipment.id} id={shipment.id}/>)}
+                            {shipmentsToRender.slice(0).reverse().map(shipment =>
+                            <ShipmentLink
+                            key={shipment.id}
+                            id={shipment.id}
+                            wasteType={shipment.wasteType}/>)}
                         </section>
                     )
                 }}

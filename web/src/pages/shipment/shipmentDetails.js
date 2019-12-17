@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 import { Query } from 'react-apollo'
 import ReactLoading from 'react-loading';
 import ShipmentHistoryElement from '../../components/shipments/shipmentHistoryElement/shipmentHistoryElement'
+import { navigate } from "@reach/router"
 
 
 /**
@@ -19,6 +20,25 @@ class DetailedShipmentPage extends Component {
     state = {
         shipmentID: this.props.shipmentID
       }
+
+    renderProcessButton = (ownerID) => {
+        let currentUserID
+        if(localStorage.getItem('me') !== null){
+            currentUserID = JSON.parse(localStorage.getItem('me'))["id"]
+        }
+        if(currentUserID === null) {return null}
+        if(ownerID === null) {return null}
+        if(ownerID !== currentUserID) {return null}
+        return(
+            <button onClick={this.processButtonOnClick}>Process Shipment</button>
+        )
+
+    }
+
+    processButtonOnClick = () => {
+        navigate('/shipment/process/' + this.state.shipmentID)
+    }
+
     render() {
         const { shipmentID } = this.state
         return(
@@ -44,6 +64,7 @@ class DetailedShipmentPage extends Component {
                             location={historyelement.location}
                             timestamp={historyelement.timestamp}
                             />)}
+                            {this.renderProcessButton(shipment.currentHolderID)}
                         </section>
                     )
                 }}

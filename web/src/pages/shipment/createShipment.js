@@ -22,7 +22,7 @@ gql`
 class CreateShipmentPage extends Component {
   state = {
     wasteType: '',
-    currentHolderID: '',
+    currentHolderID: JSON.parse(localStorage.getItem('me'))["id"],
     location: '',
     password: ''
   }
