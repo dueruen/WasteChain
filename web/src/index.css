@@ -34,11 +34,16 @@ input{
 section {
     padding: 0px var(--spacing);
     max-width: var(--content-max-width);
-    margin: 0px auto;
+
 }
 
 section:last-of-type {
     margin-bottom: var(--spacing);
+}
+
+input[type="text"], input[type="password"] {
+    border-radius: 4px;
+    padding: 5px;
 }
 
 button {
@@ -48,6 +53,7 @@ button {
     background-color: #ffff;
     min-height: 45px;
     min-width: 150px;
+    font-weight: bold;
 }
 
 button:hover {
