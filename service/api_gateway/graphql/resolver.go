@@ -161,3 +161,11 @@ func (r *queryResolver) ListAllShipments(ctx context.Context) ([]*pb.Shipment, e
 	}
 	return res.ShipmentList, nil
 }
+
+func (r *queryResolver) ListUsersShipments(ctx context.Context) ([]*pb.Shipment, error) {
+	res, err := r.ShipmentClient.ListUsersShipments(ctx, &pb.ListUsersShipmentsRequest{})
+	if err != nil {
+		return nil, err
+	}
+	return res.ShipmentList, nil
+}

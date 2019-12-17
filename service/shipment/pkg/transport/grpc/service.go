@@ -15,6 +15,7 @@ type server struct {
 	processShipment    kitgrpc.Handler
 	listAllShipments   kitgrpc.Handler
 	getShipmentDetails kitgrpc.Handler
+	listUsersShipments kitgrpc.Handler
 }
 
 func NewGrpcServer(endpoints transport.Endpoints, options []kitgrpc.ServerOption) pb.ShipmentServiceServer {
@@ -24,6 +25,7 @@ func NewGrpcServer(endpoints transport.Endpoints, options []kitgrpc.ServerOption
 		processShipment:    kitgrpc.NewServer(endpoints.ProcessShipment, decodeProcessShipmentRequest, encodeProcessShipmentResponse),
 		listAllShipments:   kitgrpc.NewServer(endpoints.ListAllShipments, decodeListAllShipmentsRequest, encodeListAllShipmentsResponse),
 		getShipmentDetails: kitgrpc.NewServer(endpoints.GetShipmentDetails, decodeGetShipmentDetailsRequest, encodeGetShipmentDetailsResponse),
+		listUsersShipments: kitgrpc.NewServer(endpoints.ListUsersShipments, decodeListUsersShipmentsRequest, encodeListUsersShipmentsResponse),
 	}
 }
 
@@ -105,4 +107,20 @@ func decodeGetShipmentDetailsRequest(_ context.Context, request interface{}) (in
 
 func encodeGetShipmentDetailsResponse(_ context.Context, response interface{}) (interface{}, error) {
 	return response.(*pb.GetShipmentDetailsResponse), nil
+}
+
+func (server *server) ListUsersShipments(ctx context.Context, req *pb.ListUsersShipmentsRequest) (*pb.ListUsersShipmentsResponse, error) {
+	_, rep, err := server.listUsersShipments.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.ListUsersShipmentsResponse), nil
+}
+
+func decodeListUsersShipmentsRequest(_ context.Context, request interface{}) (interface{}, error) {
+	return request.(*pb.ListUsersShipmentsRequest), nil
+}
+
+func encodeListUsersShipmentsResponse(_ context.Context, response interface{}) (interface{}, error) {
+	return response.(*pb.ListUsersShipmentsResponse), nil
 }

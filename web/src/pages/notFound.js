@@ -17,7 +17,7 @@ class NotFound extends Component {
 export default NotFound
 
 
-const Message = styled.h2`
+const Message = styled.h1`
     text-align: center;
 `
 

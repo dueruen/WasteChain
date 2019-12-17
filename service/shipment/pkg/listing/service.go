@@ -12,11 +12,13 @@ import (
 type Service interface {
 	GetShipmentDetails(*pb.GetShipmentDetailsRequest) (error, *pb.Shipment)
 	ListAllShipments() (error, []*pb.Shipment)
+	ListUsersShipments(*pb.ListUsersShipmentsRequest) (error, []*pb.Shipment)
 }
 
 type Repository interface {
 	GetShipmentDetails(*pb.GetShipmentDetailsRequest) (error, *pb.Shipment)
 	ListAllShipments() (error, []*pb.Shipment)
+	ListUsersShipments(*pb.ListUsersShipmentsRequest) (error, []*pb.Shipment)
 }
 
 type service struct {
@@ -50,6 +52,28 @@ func (srv *service) GetShipmentDetails(request *pb.GetShipmentDetailsRequest) (e
 
 func (srv *service) ListAllShipments() (error, []*pb.Shipment) {
 	err, shipments := srv.listRepo.ListAllShipments()
+	out := make([]*pb.Shipment, 0)
+	if err != nil {
+		return err, out
+	}
+
+	for _, shipment := range shipments {
+		res, err := srv.check(shipment)
+
+		if err != nil {
+			fmt.Println("ERR val: ", err)
+			//TODO handle error
+			out = append(out, &pb.Shipment{})
+		}
+		if res.Ok {
+			out = append(out, shipment)
+		}
+	}
+	return nil, out
+}
+
+func (srv *service) ListUsersShipments(req *pb.ListUsersShipmentsRequest) (error, []*pb.Shipment) {
+	err, shipments := srv.listRepo.ListUsersShipments(req)
 	out := make([]*pb.Shipment, 0)
 	if err != nil {
 		return err, out

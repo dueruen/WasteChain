@@ -8,8 +8,8 @@ export default function Navbar(props) {
             <nav>
                 <NavWrapper>
                     <LeftSide>
-                        <BrandWrapper>
-                            <div>WasteChain</div>
+                        <BrandWrapper href="/login">
+                            <div >WasteChain</div>
                         </BrandWrapper>
                     </LeftSide>
                     <RightSide>
