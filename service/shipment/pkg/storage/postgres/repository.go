@@ -115,6 +115,26 @@ func (storage *Storage) ListAllShipments() (error, []*pb.Shipment) {
 	return nil, shipmentsToBeReturned
 }
 
+func (storage *Storage) ListUsersShipments(request *pb.ListUsersShipmentsRequest) (error, []*pb.Shipment) {
+	var shipments []*pb.Shipment
+	storage.db.Where("current_holder_id = ?", request.ID).Find(&shipments)
+	var shipmentsToBeReturned []*pb.Shipment
+
+	for _, shipment := range shipments {
+		shipment = getAllShipmentData(storage.db, shipment)
+	}
+
+	for _, shipment := range shipments {
+		if len(shipment.History) == 0 {
+			continue
+		}
+		shipment = getAllShipmentData(storage.db, shipment)
+		shipmentsToBeReturned = append(shipmentsToBeReturned, shipment)
+	}
+
+	return nil, shipmentsToBeReturned
+}
+
 func getAllShipmentData(db *gorm.DB, shipment *pb.Shipment) *pb.Shipment {
 	var history []*pb.HistoryItem
 	db.Where("shipment_id = ? AND published = true", shipment.ID).Find(&history)
