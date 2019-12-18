@@ -7,34 +7,29 @@ import Popup from "reactjs-popup";
 /**
  * Query to create a shipment
  */
-const TRANSFER_SHIPMENT =
+const FINISH_TRANSFER =
     gql`
-    mutation TransferShipment($shipmentID: String!, $ownerID: String!, $receiverID: String!, $location: String!, $password: String!)
-    {transferShipment(request:
+    mutation ContinueDoubleSign($continueID: String!, $newHolderID: String!, $newHolderPassword: String!)
+    {continueDoubleSign(request:
         {
-            shipmentID: $shipmentID,
-            ownerID: $ownerID,
-            receiverID: $receiverID,
-            location: $location,
-            password: $password,
+            continueID: $continueID,
+            newHolderID: $newHolderID,
+            newHolderPassword: $newHolderPassword,
         }
-    ){error, QRCode, ContinueID}}
+    )}
 `;
 
-
-class StartTransferShipmentPage extends Component {
+class FinishTransferShipmentPage extends Component {
     state = {
-        shipmentID: '',
-        ownerID: '',
-        receiverID: '',
-        location: '',
-        password: '',
+        continueID: '',
+        newHolderID: '',
+        newHolderPassword: '',
     }
 
     componentDidMount() {
         if (JSON.parse(localStorage.getItem('me'))) {
             const s = JSON.parse(localStorage.getItem('me'))["id"]
-            this.setState({ ownerID: s })
+            this.setState({ newHolderID: s })
         }
     }
 
@@ -43,57 +38,57 @@ class StartTransferShipmentPage extends Component {
         //   result: data,
         // })
         console.log(data)
-        this.setState({receiverID: data})
+        this.setState({continueID: data})
     }
     handleError(err) {
         console.error(err)
     }
 
     render() {
-        if (!this.state.ownerID) {
+        if (!this.state.newHolderID) {
             return (
                 <h2>Please login</h2>
             )
         }
-        const { shipmentID, ownerID, receiverID, location, password } = this.state
+        const { continueID, newHolderID, newHolderPassword } = this.state
         const previewStyle = {
             height: 240,
             width: 240,
         }
         return (
-            <Mutation mutation={TRANSFER_SHIPMENT} variables={{ shipmentID, ownerID, receiverID, location, password }}>
-                {(transferShipment, res) => {
+            <Mutation mutation={FINISH_TRANSFER} variables={{ continueID, newHolderID, newHolderPassword }}>
+                {(continueDoubleSign, res) => {
                     const { data, loading, error, called } = res;
                     if (!called) {
                         return (
                             <section>
-                                <h2>Transfer Shipment</h2>
+                                <h2>Finish Shipment Transfer </h2>
                                 <form>
                                     <label>
-                                        Shipment ID
+                                        NewHolder ID
                                 <input
-                                            value={shipmentID}
-                                            onChange={e => this.setState({ shipmentID: e.target.value })}
+                                            value={newHolderID}
+                                            onChange={e => this.setState({ newHolderID: e.target.value })}
                                             type="text"
                                             required
                                         />
                                     </label>
                                     <br />
                                     <label>
-                                        Owner ID
+                                        New Holder Password
                                 <input
-                                            value={ownerID}
-                                            onChange={e => this.setState({ ownerID: e.target.value })}
+                                            value={newHolderPassword}
+                                            onChange={e => this.setState({ newHolderPassword: e.target.value })}
                                             type="text"
                                             required
                                         />
                                     </label>
                                     <br />
                                     <label>
-                                        Receiver ID
+                                        Continue ID
                                 <input
-                                            value={receiverID}
-                                            onChange={e => this.setState({ receiverID: e.target.value })}
+                                            value={continueID}
+                                            onChange={e => this.setState({ continueID: e.target.value })}
                                             type="text"
                                             required
                                         />
@@ -111,7 +106,7 @@ class StartTransferShipmentPage extends Component {
                                             <div
                                                 style={{ height: 500, width: 500, border: '1px solid #ccc' }}
                                             >
-                                                <span> Scan receivers id</span>
+                                                <span> Scan continue id</span>
                                                 <QrReader
                                                     delay={100}
                                                     style={previewStyle}
@@ -120,32 +115,12 @@ class StartTransferShipmentPage extends Component {
                                                 />
                                             </div>
                                         </Popup>
-                                        <p>{this.state.receiverID}</p>
+                                        <p>{this.state.continueID}</p>
                                     </div>
-                                    <br />
-                                    <label>
-                                        Location
-                                <input
-                                            value={location}
-                                            onChange={e => this.setState({ location: e.target.value })}
-                                            type="text"
-                                            required
-                                        />
-                                    </label>
-                                    <br />
-                                    <label>
-                                        Password
-                                <input
-                                            value={password}
-                                            onChange={e => this.setState({ password: e.target.value })}
-                                            type="password"
-                                            required
-                                        />
-                                    </label>
                                 </form>
                                 <br />
                                 <div>
-                                    <button onClick={transferShipment}>Transfer Shipment</button>
+                                    <button onClick={continueDoubleSign}>Finish Shipment Transfer</button>
                                 </div>
 
                             </section>
@@ -155,16 +130,12 @@ class StartTransferShipmentPage extends Component {
                         return <div>LOADING</div>;
                     }
                     if (error) {
-                        return <div>ERROR</div>;
+                        return <div>ERROR <div>{data}</div></div>;
                     }
-                    const s = "data:image/png;base64," + data.transferShipment.QRCode;
+
                     return (
                         <Fragment>
-                            <h1>Transfer started</h1>
-                            <img src={s} />
-                            <div>
-                                <p>To finish the receiver has to scan and finish the transfer</p>
-                            </div>
+                            <h1>Transfer done</h1>
                         </Fragment>
                     )
                 }}
@@ -173,4 +144,4 @@ class StartTransferShipmentPage extends Component {
     }
 }
 
-export default StartTransferShipmentPage
+export default FinishTransferShipmentPage
