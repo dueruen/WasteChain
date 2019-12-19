@@ -1,6 +1,7 @@
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag';
 import React, { Component, Fragment } from 'react'
+import styled from '@emotion/styled'
 
 const TOQR =
     gql`
@@ -42,8 +43,11 @@ class GetID extends Component {
                     const s = "data:image/png;base64," + data.toQR;
                     return (
                         <Fragment>
-                            <h1>Your ID</h1>
-                            <img src={s}/>
+                            <QRWrapper>
+                                <h1>Your ID</h1>
+                                <img src={s}/>
+                                <h2>{dataID}</h2>
+                            </QRWrapper>
                         </Fragment>
                     )
                 }}
@@ -53,3 +57,15 @@ class GetID extends Component {
 }
 
 export default GetID
+
+
+const QRWrapper = styled.div`
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 20%;
+    margin: 50px;
+    min-height: 500px;
+    border-color: var(--main-color);
+`
