@@ -7,6 +7,7 @@ service ShipmentService {
     rpc ProcessShipment(ProcessShipmentRequest) returns (ProcessShipmentResponse);
     rpc GetShipmentDetails(GetShipmentDetailsRequest) returns (GetShipmentDetailsResponse);
     rpc ListAllShipments(ListAllShipmentsRequest) returns (ListAllShipmentsResponse);
+    rpc ListUsersShipments(ListUsersShipmentsRequest) returns (ListUsersShipmentsResponse);
 }
 
 
@@ -87,7 +88,19 @@ message ListAllShipmentsRequest {
 
 }
 
+
 message ListAllShipmentsResponse {
     string error = 1;
     repeated Shipment shipmentList = 2;
+}
+
+message ListUsersShipmentsRequest {
+    string ID = 1;
+
+}
+
+message ListUsersShipmentsResponse {
+    string error = 1;
+    repeated Shipment shipmentList = 2;
+
 }

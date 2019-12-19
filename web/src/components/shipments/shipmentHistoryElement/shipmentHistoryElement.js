@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import './shipmentHistoryElement.css'
+
 
 class ShipmentHistoryElement extends Component {
 

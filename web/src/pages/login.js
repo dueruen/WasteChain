@@ -1,6 +1,8 @@
 import { Mutation } from 'react-apollo'
 import gql from 'graphql-tag';
 import React, { Component, Fragment } from 'react'
+import ReactLoading from 'react-loading';
+import { navigate } from "@reach/router"
 
 /**
  * Mutation to login
@@ -60,7 +62,7 @@ class Login extends Component {
                             )
                         }
                         if (loading) {
-                            return <div>LOADING</div>;
+                            return <ReactLoading type={'spin'}color={'#8bb849'} height={'20%'} width={'20%'}/>;
                         }
                         if (error) {
                             return <div>ERROR</div>;
@@ -72,10 +74,15 @@ class Login extends Component {
                             const { login } = data;
                             const { token, id } = login;
                             if (!token) {
-                                return <div>Error cut not login</div>
+                                return <div>Error could not log in</div>
                             }
                             localStorage.setItem('me', JSON.stringify({ token: token, id: id }));
-                            return <div>You are logged in</div>
+
+                            navigate('/')
+                            window.location.reload(false) //Necessary to reload the navbar, to get the logged in features
+
+                            return null
+
                         }
                     }}
                 </Mutation>

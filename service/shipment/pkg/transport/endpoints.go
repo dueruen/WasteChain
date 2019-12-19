@@ -17,6 +17,7 @@ type Endpoints struct {
 	ProcessShipment    endpoint.Endpoint
 	GetShipmentDetails endpoint.Endpoint
 	ListAllShipments   endpoint.Endpoint
+	ListUsersShipments endpoint.Endpoint
 }
 
 func MakeEndpoints(createService creating.Service, listingService listing.Service,
@@ -27,6 +28,7 @@ func MakeEndpoints(createService creating.Service, listingService listing.Servic
 		ProcessShipment:    makeProcessShipmentEndpoint(processingService),
 		GetShipmentDetails: makeGetShipmentDetailsEndpoint(listingService),
 		ListAllShipments:   makeListAllShipmentsEndpoint(listingService),
+		ListUsersShipments: makeListUsersShipmentsEndpoint(listingService),
 	}
 }
 
@@ -69,5 +71,13 @@ func makeListAllShipmentsEndpoint(service listing.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		_, res := service.ListAllShipments()
 		return &pb.ListAllShipmentsResponse{ShipmentList: res}, nil
+	}
+}
+
+func makeListUsersShipmentsEndpoint(service listing.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*pb.ListUsersShipmentsRequest)
+		_, res := service.ListUsersShipments(req)
+		return &pb.ListUsersShipmentsResponse{ShipmentList: res}, nil
 	}
 }

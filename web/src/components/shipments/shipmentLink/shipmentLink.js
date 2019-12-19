@@ -13,6 +13,7 @@ class ShipmentLink extends Component {
             <div className="shipmentlink"
             onClick={this.onClick}>
                 <h3>{this.props.id}</h3>
+                <h4>Type of waste: {this.props.wasteType}</h4>
             </div>
         )
     }
