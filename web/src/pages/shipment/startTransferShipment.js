@@ -105,7 +105,7 @@ class StartTransferShipmentPage extends Component {
                                             trigger={
                                                 <button type="button" className="button">
                                                     {' '}
-                                                    Open Modal{' '}
+                                                    Open QR Scanner{' '}
                                                 </button>
                                             }
                                             modal
