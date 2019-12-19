@@ -26,6 +26,8 @@ class FinishTransferShipmentPage extends Component {
         newHolderPassword: '',
     }
 
+    handleScan = this.handleScan.bind(this);
+
     componentDidMount() {
         if (JSON.parse(localStorage.getItem('me'))) {
             const s = JSON.parse(localStorage.getItem('me'))["id"]
@@ -35,7 +37,7 @@ class FinishTransferShipmentPage extends Component {
 
     handleScan(data) {
         if (data) {
-            this.setState({ receiverID: data })
+            this.setState({ continueID: data })
         }
     }
     handleError(err) {
@@ -104,7 +106,7 @@ class FinishTransferShipmentPage extends Component {
                                             <div
                                                 style={{ height: 500, width: 500, border: '1px solid #ccc' }}
                                             >
-                                                <span> Scan continue id</span>
+                                                <span> Scan transfer ID</span>
                                                 <QrReader
                                                     delay={100}
                                                     style={previewStyle}
@@ -113,7 +115,6 @@ class FinishTransferShipmentPage extends Component {
                                                 />
                                             </div>
                                         </Popup>
-                                        <p>{this.state.continueID}</p>
                                     </div>
                                 </form>
                                 <br />
