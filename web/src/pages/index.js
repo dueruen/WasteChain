@@ -24,7 +24,7 @@ export default function Pages() {
                     <LoginPage path="login" />
                     <StartTransferShipmentPage path="shipment/transfer/:shipmentID" />
                     <FinishTransferShipmentPage path="shipment/finishtransfer" />
-                    <GetIDPage path="getID" />
+                    <GetIDPage path="my-id" />
                     <CreateEmployeePage path="employee/create" />
                     <EmployeeShipmentPage path="my-shipments/" />
                     <CreateCompanyPage path="company/create" />
