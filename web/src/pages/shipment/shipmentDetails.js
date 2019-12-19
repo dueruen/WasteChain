@@ -32,11 +32,27 @@ class DetailedShipmentPage extends Component {
         return(
             <button onClick={this.processButtonOnClick}>Process Shipment</button>
         )
+    }
 
+    renderTransferButton = (ownerID) => {
+        let currentUserID
+        if(localStorage.getItem('me') !== null){
+            currentUserID = JSON.parse(localStorage.getItem('me'))["id"]
+        }
+        if(currentUserID === null) {return null}
+        if(ownerID === null) {return null}
+        if(ownerID !== currentUserID) {return null}
+        return(
+            <button onClick={this.transferButtonOnClick}>Transfer Shipment</button>
+        )
     }
 
     processButtonOnClick = () => {
         navigate('/shipment/process/' + this.state.shipmentID)
+    }
+
+    transferButtonOnClick = () => {
+        navigate('/shipment/transfer/' + this.state.shipmentID)
     }
 
     render() {
@@ -65,6 +81,7 @@ class DetailedShipmentPage extends Component {
                             timestamp={historyelement.timestamp}
                             />)}
                             {this.renderProcessButton(shipment.currentHolderID)}
+                            {this.renderTransferButton(shipment.currentHolderID)}
                         </section>
                     )
                 }}

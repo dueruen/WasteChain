@@ -22,8 +22,8 @@ export default function Pages() {
                 <Router primary={false} component={Fragment}>
                     <LandingPage path="/" />
                     <LoginPage path="login" />
-                    <StartTransferShipmentPage path="starttransfer" />
-                    <FinishTransferShipmentPage path="finishtransfer" />
+                    <StartTransferShipmentPage path="shipment/transfer/:shipmentID" />
+                    <FinishTransferShipmentPage path="shipment/finishtransfer" />
                     <GetIDPage path="getID" />
                     <CreateEmployeePage path="employee/create" />
                     <EmployeeShipmentPage path="my-shipments/" />

@@ -167,7 +167,6 @@ func (r *queryResolver) ListAllShipments(ctx context.Context) ([]*pb.Shipment, e
 	return res.ShipmentList, nil
 }
 
-<<<<<<< HEAD
 func (r *queryResolver) ToQr(ctx context.Context, data string) (string, error) {
 	res, err := r.QRClient.CreateQRCode(ctx, &pb.CreateQRRequest{DataString: data})
 	if err != nil {
@@ -182,12 +181,12 @@ type transferShipmentResponseResolver struct{ *Resolver }
 func (r *transferShipmentResponseResolver) QRCode(ctx context.Context, obj *pb.TransferShipmentResponse) (string, error) {
 	base64 := b64.StdEncoding.EncodeToString(obj.QRCode)
 	return base64, nil
-=======
+}
+
 func (r *queryResolver) ListUsersShipments(ctx context.Context, request string) ([]*pb.Shipment, error) {
 	res, err := r.ShipmentClient.ListUsersShipments(ctx, &pb.ListUsersShipmentsRequest{ID: request})
 	if err != nil {
 		return nil, err
 	}
 	return res.ShipmentList, nil
->>>>>>> master
 }

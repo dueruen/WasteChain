@@ -24,7 +24,7 @@ const TRANSFER_SHIPMENT =
 
 class StartTransferShipmentPage extends Component {
     state = {
-        shipmentID: '',
+        shipmentID: this.props.shipmentID,
         ownerID: '',
         receiverID: '',
         location: '',
