@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react'
 //import gql from "graphql-tag";
 //import { Mutation } from 'react-apollo'
-import QrReader from 'react-qr-scanner'
+// import QrReader from 'react-qr-scanner'
+// import QRScanner from 'qr-code-scanner';
+import ReactiveQR from "reactive-qr";
 //import Popup from "reactjs-popup";
 
 /**
@@ -38,16 +40,16 @@ class StartTransferShipmentPage extends Component {
     //     }
     // }
 
-    handleScan(data) {
-        // this.setState({
-        //   result: data,
-        // })
-        console.log(data)
-        //this.setState({ receiverID: data })
-    }
-    handleError(err) {
-        console.error(err)
-    }
+    // handleScan(data) {
+    //     // this.setState({
+    //     //   result: data,
+    //     // })
+    //     console.log(data)
+    //     //this.setState({ receiverID: data })
+    // }
+    // handleError(err) {
+    //     console.error(err)
+    // }
 
     render() {
         // if (!this.state.ownerID) {
@@ -61,15 +63,18 @@ class StartTransferShipmentPage extends Component {
         //     width: 240,
         // }
         return (
-            <div>
-            <QrReader
-              delay={300}
-              onError={this.handleError}
-              onScan={this.handleScan}
-              //style={{ width: '200px' }}
-            />
-            {/* <p>{this.state.receiverID}</p> */}
+            <div style={{ width: 300, border: "1px solid #f7f7f7" }}>
+            <ReactiveQR onInit={console.log} onCode={console.log} />
           </div>
+        //     <div>
+        //     {/* <QrReader
+        //       delay={300}
+        //       onError={this.handleError}
+        //       onScan={this.handleScan}
+        //       //style={{ width: '200px' }}
+        //     /> */}
+        //     {/* <p>{this.state.receiverID}</p> */}
+        //   </div>
         )
         // return (
         //     <Mutation mutation={TRANSFER_SHIPMENT} variables={{ shipmentID, ownerID, receiverID, location, password }}>
