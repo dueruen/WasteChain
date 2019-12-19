@@ -34,11 +34,9 @@ class FinishTransferShipmentPage extends Component {
     }
 
     handleScan(data) {
-        // this.setState({
-        //   result: data,
-        // })
-        console.log(data)
-        this.setState({ continueID: data })
+        if (data) {
+            this.setState({ receiverID: data })
+        }
     }
     handleError(err) {
         console.error(err)
