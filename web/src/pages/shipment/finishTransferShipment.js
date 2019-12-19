@@ -38,7 +38,7 @@ class FinishTransferShipmentPage extends Component {
         //   result: data,
         // })
         console.log(data)
-        this.setState({continueID: data})
+        this.setState({ continueID: data })
     }
     handleError(err) {
         console.error(err)

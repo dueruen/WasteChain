@@ -4,9 +4,6 @@ import { HttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 
 const cache = new InMemoryCache();
-console.log("------------Start")
-console.log(process.env);
-console.log("------------END")
 
 let host = "localhost";
 if (process.env.REACT_APP_HOST) {
