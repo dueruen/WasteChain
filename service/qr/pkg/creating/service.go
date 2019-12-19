@@ -23,7 +23,6 @@ func NewService(eventHandler EventHandler) Service {
 
 func (srv *service) CreateQRCode(id, dataString string) (*[]byte, error) {
 	code, err := qrcode.Encode(dataString, qrcode.Medium, 256)
-
 	//Public event
 	srv.eventHandler.QRCreated(&pb.QRCreatedEvent{
 		ID:     id,

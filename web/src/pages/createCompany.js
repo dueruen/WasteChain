@@ -64,6 +64,7 @@ class CreateCompanyPage extends Component {
                 required
                 />
             </label>
+            <h3>Company Address</h3>
             <label>
                 Road name
                 <input

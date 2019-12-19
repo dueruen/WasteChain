@@ -8,7 +8,6 @@ import (
 
 	pb "github.com/dueruen/WasteChain/service/signature/gen/proto"
 	"github.com/dueruen/WasteChain/service/signature/pkg/event/pub"
-	"github.com/dueruen/WasteChain/service/signature/pkg/event/sub"
 	"github.com/dueruen/WasteChain/service/signature/pkg/key"
 	"github.com/dueruen/WasteChain/service/signature/pkg/sign"
 	"github.com/dueruen/WasteChain/service/signature/pkg/storage/postgres"
@@ -34,7 +33,7 @@ func Run() {
 	}
 	qr := os.Getenv("QR")
 	if qr == "" {
-		qr = "localhost:50052"
+		qr = "qr:50052"
 	}
 	nats := os.Getenv("NATS")
 	if nats == "" {
@@ -82,13 +81,6 @@ func Run() {
 
 	//Create Sign Service
 	signSrv := sign.NewService(storage, keySrv, pubEventHandler, qrClient, blockClient)
-
-	//Connect Sub to NATS
-	errSub := sub.StartListening(nats, signSrv)
-	if errSub != nil {
-		log.Fatalf("Could not connect to NATS %v", errSub)
-	}
-	fmt.Printf("Sub Connection to NATS service made\n")
 
 	var endpoints transport.Endpoints
 	{

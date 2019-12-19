@@ -4,8 +4,14 @@ import { HttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 
 const cache = new InMemoryCache();
+
+let host = "localhost";
+if (process.env.REACT_APP_HOST) {
+    host = process.env.REACT_APP_HOST
+}
+
 const link = new HttpLink({
-  uri: 'http://localhost:8081/query',
+  uri: 'http://' + host + ':8081/query',
   credentials: 'same-origin'
 })
 

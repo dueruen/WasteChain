@@ -9,6 +9,9 @@ type Query {
     listAllShipments: [Shipment!]!
     listUsersShipments(userID: String!): [Shipment!]!
     getShipmentDetails(shipmentID: ID!): Shipment!
+
+    #QR
+    toQR(data: String!): String!
 }
 
 type Mutation {
@@ -22,7 +25,7 @@ type Mutation {
     login(request: LoginRequest!): LoginResponse!
     #Shipment
     createShipment(request: CreateShipmentRequest!): ID!
-    transferShipment(request: TransferShipmentRequest!): String!
+    transferShipment(request: TransferShipmentRequest!): TransferShipmentResponse!
     processShipment(request: ProcessShipmentRequest!): String!
 }
 
@@ -126,12 +129,6 @@ type Shipment {
     history: [HistoryItem]
 }
 
-# enum ShipmentEvent {
-#     CREATED
-#     TRANSFERED
-#     PROCESSED
-# }
-
 type HistoryItem {
     id: ID!
     event: Int!
@@ -150,6 +147,12 @@ input TransferShipmentRequest {
     receiverID: String!
     location: String!
     password: String!
+}
+
+type TransferShipmentResponse {
+    error: String!
+    QRCode: String!
+    ContinueID: String!
 }
 
 input ProcessShipmentRequest {

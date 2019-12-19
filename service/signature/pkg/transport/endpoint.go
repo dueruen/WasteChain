@@ -44,13 +44,13 @@ func makeSingleSignEndpoint(srv sign.Service) endpoint.Endpoint {
 func makeStartDoubleSignEndpoint(srv sign.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*pb.StartDoubleSignRequest)
-		err := srv.StartDoubleSign(req)
+		res, err := srv.StartDoubleSign(req)
 		if err != nil {
 			return &pb.StartDoubleSignResponse{
 				Error: err.Error(),
 			}, err
 		}
-		return &pb.StartDoubleSignResponse{}, nil
+		return res, nil
 	}
 }
 

@@ -36,6 +36,10 @@ func main() {
 	if len(ship) == 0 {
 		ship = "shipment:50055"
 	}
+	qr := os.Getenv("QR")
+	if len(qr) == 0 {
+		qr = "qr:50052"
+	}
 
 	accountConn, err := grpc.Dial(acco, grpc.WithInsecure())
 	if err != nil {
@@ -72,11 +76,21 @@ func main() {
 	shipmentService := pb.NewShipmentServiceClient(shipmentConn)
 	fmt.Printf("Connection to shipment service made\n")
 
+	//Connect to QR service
+	qrConn, err := grpc.Dial(qr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect to QR service %v", err)
+	}
+	defer qrConn.Close()
+	qrService := pb.NewQRServiceClient(qrConn)
+	fmt.Printf("Connection to QR service made\n")
+
 	resolver := graphql.Resolver{
 		AccountClient:        accountService,
 		SignatureClient:      signatureService,
 		AuthenticationClient: authService,
 		ShipmentClient:       shipmentService,
+		QRClient:             qrService,
 	}
 
 	router := chi.NewRouter()
@@ -89,7 +103,6 @@ func main() {
 		AllowedHeaders:   []string{"X-Requested-With", "Accept", "Authorization", "Accept-Language", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		Debug:            true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}).Handler)
 

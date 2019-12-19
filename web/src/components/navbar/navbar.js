@@ -23,7 +23,13 @@ export default class Navbar extends Component {
                     <div onClick={this.logOut}><NavLink href="/">Log Out</NavLink></div>
                 </LinkWrapper>
                 <LinkWrapper>
+                    <NavLink href="/my-id/">My ID</NavLink>
+                </LinkWrapper>
+                <LinkWrapper>
                     <NavLink href="/my-shipments/">My Shipments</NavLink>
+                </LinkWrapper>
+                <LinkWrapper>
+                    <NavLink href="/shipment/finishtransfer/">Finish Shipment Transfer</NavLink>
                 </LinkWrapper>
                 <LinkWrapper>
                     <NavLink href="/shipment/create/">Create Shipment</NavLink>
