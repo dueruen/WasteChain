@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 import { Mutation } from 'react-apollo'
 import QrReader from 'react-qr-scanner'
 import Popup from "reactjs-popup";
+import styled from '@emotion/styled'
 
 /**
  * Query to create a shipment
@@ -161,11 +162,14 @@ class StartTransferShipmentPage extends Component {
                     const s = "data:image/png;base64," + data.transferShipment.QRCode;
                     return (
                         <Fragment>
-                            <h1>Transfer started</h1>
-                            <img src={s} />
-                            <div>
-                                <p>To finish the receiver has to scan and finish the transfer</p>
-                            </div>
+                            <QRWrapper>
+                                <h1>Transfer started</h1>
+                                <img src={s} />
+                                <div>
+                                    <h2>To finish the receiver has to scan and finish the transfer</h2>
+                                    <h2>Transfer ID: {data.transferShipment.ContinueID}</h2>
+                                </div>
+                            </QRWrapper>
                         </Fragment>
                     )
                 }}
@@ -175,3 +179,15 @@ class StartTransferShipmentPage extends Component {
 }
 
 export default StartTransferShipmentPage
+
+
+const QRWrapper = styled.div`
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 20%;
+    margin: 50px;
+    min-height: 500px;
+    border-color: var(--main-color);
+`
